@@ -4,3 +4,5 @@ from .jinja2 import (
     Jinja2Middleware,
     Jinja2Response,
 )
+
+from .auth_required import AuthRequiredMiddleware
