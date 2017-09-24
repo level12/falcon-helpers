@@ -22,7 +22,7 @@ setup(
     license='BSD',
     author="Nick Zaccardi",
     author_email="nicholas.zaccardi@gmail.com",
-    url='https://github.com/skosh/falcon-helpers',
+    url='https://gitlab.com/skosh/falcon-helpers',
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
