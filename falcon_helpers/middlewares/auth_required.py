@@ -6,6 +6,10 @@ def _default_failed(reason):
     raise falcon.HTTPFound('/auth/login')
 
 
+class ConfigurationError(Exception):
+    pass
+
+
 class AuthRequiredMiddleware:
     """Requires a cookie be set with a valid JWT or fails
 
@@ -47,13 +51,20 @@ class AuthRequiredMiddleware:
 
     """
 
-    def __init__(self, audience, secret, when_fails=None,
-                 cookie_name='X-AuthToken', resource_param='auth_required'):
+    def __init__(self, audience, secret=None, pubkey=None, when_fails=None,
+                 cookie_name='X-AuthToken', resource_param='auth_required',):
         self.audience = audience
         self.secret = secret
+        self.pubkey = pubkey
         self.failed_action = when_fails or _default_failed
         self.cookie_name = cookie_name
         self.resource_param = resource_param
+
+        if (self.pubkey is not None
+            and not self.pubkey.startswith('ssh-rsa')):
+            raise ConfigurationError(
+                'A public key for HS256 encoding must be in PEM Format')
+
 
     def process_resource(self, req, resp, resource, params):
         required = getattr(resource, self.resource_param, True)
@@ -66,11 +77,24 @@ class AuthRequiredMiddleware:
             self.failed_action(Exception('Missing Token'))
 
         try:
-            results = jwt.decode(token, self.client_secret,
-                                 audience=self.client_id)
-        except jwt.ExpiredSignatureError as e:
+            header = jwt.get_unverified_header(token)
+        except jwt.exceptions.DecodeError as e:
+            return self.failed_action(e)
+
+        (type_, verify_with) = (('public key', self.pubkey)
+                                if header['alg'] == 'RS256'
+                                else ('secret key', self.secret))
+
+        if verify_with is None:
+            raise ConfigurationError('You must pass the correct verification'
+                                     f' type for this algorithm.'
+                                     f' {header["alg"]} requires a {type_}.')
+
+        try:
+            results = jwt.decode(token, verify_with, audience=self.audience)
+        except jwt.exceptions.ExpiredSignatureError as e:
             self.failed_action(e)
-        except jwt.DecodeError as e:
+        except jwt.exceptions.DecodeError as e:
             self.failed_action(e)
 
         req.context['auth_token_contents'] = results
