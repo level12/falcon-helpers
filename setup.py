@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'falcon',
         'pyjwt',
+        'cryptography',
     ],
     zip_safe=True,
     license='BSD',
