@@ -4,5 +4,6 @@ from .jinja2 import (
     Jinja2Middleware,
     Jinja2Response,
 )
+from .sqla import SQLAlchemySessionMiddleware
 
 from .auth_required import AuthRequiredMiddleware

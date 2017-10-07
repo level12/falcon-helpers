@@ -19,6 +19,7 @@ setup(
         'falcon',
         'pyjwt',
         'cryptography',
+        'sqlalchemy',
     ],
     zip_safe=True,
     license='BSD',
