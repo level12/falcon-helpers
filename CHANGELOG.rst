@@ -1,3 +1,8 @@
+0.3.1 - 2017-10-09
+==================
+
+* [FEAT] Add a number of helpful SQLAlchemy Features
+
 0.3.0 - 2017-10-07
 ==================
 
