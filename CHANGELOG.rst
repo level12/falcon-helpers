@@ -1,3 +1,11 @@
+0.4.0 - 2017-10-14
+==================
+
+* Added Marshmallow Middleware for auto schema loading (655cf76_)
+
+.. _655cf76: https://gitlab.com/skosh/falcon-helpers/commit/655cf76
+
+
 0.3.1 - 2017-10-09
 ==================
 
