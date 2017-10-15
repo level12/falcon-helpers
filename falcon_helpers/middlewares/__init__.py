@@ -7,3 +7,5 @@ from .jinja2 import (
 from .sqla import SQLAlchemySessionMiddleware
 
 from .auth_required import AuthRequiredMiddleware
+
+from .marshmallow import MarshmallowMiddleware
