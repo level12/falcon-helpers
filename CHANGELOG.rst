@@ -1,3 +1,8 @@
+0.4.1 - 2017-10-19
+==================
+
+* Fix issue with importing Marshmallow Middleware
+
 0.4.0 - 2017-10-14
 ==================
 
