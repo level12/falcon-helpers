@@ -52,28 +52,26 @@ class AuthRequiredMiddleware:
     """
 
     def __init__(self, audience, secret=None, pubkey=None, when_fails=None,
-                 cookie_name='X-AuthToken', resource_param='auth_required',):
+                 cookie_name='X-AuthToken', resource_param='auth_required',
+                 always=False, not_for=None):
+        self.always = always
         self.audience = audience
-        self.secret = secret
-        self.pubkey = pubkey
-        self.failed_action = when_fails or _default_failed
         self.cookie_name = cookie_name
+        self.failed_action = when_fails or _default_failed
+        self.pubkey = pubkey
         self.resource_param = resource_param
+        self.secret = secret
+        self.not_for = not_for if not_for else []
 
         if (self.pubkey is not None
             and not self.pubkey.startswith('ssh-rsa')):
             raise ConfigurationError(
                 'A public key for HS256 encoding must be in PEM Format')
 
-
-    def process_resource(self, req, resp, resource, params):
-        required = getattr(resource, self.resource_param, True)
+    def verify_request(self, req):
         token = req.cookies.get(self.cookie_name, False)
 
-        if not required:
-            return
-
-        if required and not token:
+        if not token:
             self.failed_action(Exception('Missing Token'))
 
         try:
@@ -98,3 +96,14 @@ class AuthRequiredMiddleware:
             self.failed_action(e)
 
         req.context['auth_token_contents'] = results
+
+    def process_request(self, req, resp):
+        if self.always and req.path not in self.not_for:
+            self.verify_request(req)
+
+
+    def process_resource(self, req, resp, resource, params):
+        required = getattr(resource, self.resource_param, True)
+
+        if required:
+            self.verify_request(req)
