@@ -1,3 +1,8 @@
+0.4.2 - 2017-10-25
+==================
+* Enable Auth Middleware to always run. Helpful when then entire application is
+  an API that requires authentication.
+
 0.4.1 - 2017-10-19
 ==================
 
