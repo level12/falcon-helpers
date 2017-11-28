@@ -1,5 +1,8 @@
+import sqlalchemy as sa
 from sqlalchemy.schema import MetaData
 from sqlalchemy.ext.declarative import as_declarative
+
+from falcon_helpers.sqla.core import utcnow
 
 
 convention = {
@@ -16,3 +19,11 @@ metadata = MetaData(naming_convention=convention)
 @as_declarative(metadata=metadata)
 class ModelBase:
     pass
+
+
+class BaseColumns:
+    id = sa.Column(sa.Integer, primary_key=True, nullable=False)
+
+    created_ts = sa.Column(sa.DateTime, server_default=utcnow())
+    updated_ts = sa.Column(sa.DateTime, server_default=utcnow(),
+                           server_onupdate=utcnow())

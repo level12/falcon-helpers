@@ -20,6 +20,7 @@ setup(
         'pyjwt',
         'cryptography',
         'sqlalchemy',
+        'wrapt',
     ],
     zip_safe=True,
     license='BSD',
