@@ -61,14 +61,27 @@ class Jinja2Response:
 
 class Jinja2Middleware:
 
-    def __init__(self, template_dpath):
+    # TODO: This should probably accept an environment instead of passing around
+    # all these one-off environment options
+    def __init__(self, template_dpath=None, globals=None):
+        """Create a Jinja2Middleware
+
+        :param template_dpath: the path to the Jinja2
+        :param globals: a dictionary of globals to attach to the environment
+
+        """
         if not os.path.isabs(template_dpath):
             raise Jinja2ConfigurationError(
                 'Template directory path must be absolute')
 
-        self.template_dpath = template_dpath
         self.jinja2_env = Environment()
+
+        # Set up the loader
+        self.template_dpath = template_dpath
         self.jinja2_env.loader = FileSystemLoader(self.template_dpath)
+
+        # Add the globals to the env
+        self.jinja2_env.globals.update((globals or {}))
 
     def process_response(self, req, resp, resource, req_succeeded):
         if 'template' not in resp.context:
@@ -78,4 +91,4 @@ class Jinja2Middleware:
         resp.context['template'].ctx['falcon_response'] = resp
         resp.context['template'].ctx['falcon_resource'] = resource
 
-        resp.context['template'].apply(resp, self.jinja2_env)
+        resp.context['template'].apply(resp, self.jinja2_env.get_template)
