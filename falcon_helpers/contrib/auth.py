@@ -120,3 +120,15 @@ def route_requires_permission(token=None):
             raise falcon.HTTPUnauthorized
 
     return wrapper
+
+
+def has_permission(user, token):
+    return (user and user.has_permission(token))
+
+
+def has_any_permission(user, tokens):
+    return (user and any([user.has_permission(x) for x in tokens]))
+
+
+def has_all_permissions(user, tokens):
+    return (user and all([user.has_permission(x) for x in tokens]))

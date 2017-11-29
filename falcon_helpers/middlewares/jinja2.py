@@ -91,4 +91,4 @@ class Jinja2Middleware:
         resp.context['template'].ctx['falcon_response'] = resp
         resp.context['template'].ctx['falcon_resource'] = resource
 
-        resp.context['template'].apply(resp, self.jinja2_env.get_template)
+        resp.context['template'].apply(resp, self.jinja2_env)
