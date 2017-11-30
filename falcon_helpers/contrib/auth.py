@@ -100,12 +100,21 @@ class Permission(BaseColumns):
             super().__eq__(other)
 
 
-def route_requires_permission(token=None):
+def raise_unauthenticated(*args, **kwargs):
+    raise falcon.HTTPUnauthorized()
+
+
+def route_requires_permission(token=None, on_fail=raise_unauthenticated):
     """Decorate a route to require a certain permission
 
     This should be used on a falcon resource method such as `on_get`, `on_post`
     to require a base permission for the route. Omitting the token permission
     token requires that the user exists to access that route.
+
+    :param token: the permision token to require
+    :param on_fail: a function to execute when the permission check fails.
+
+    NOTE: By default this function will raise an HTTPUnauthorized exception
     """
 
     @decorator
@@ -117,7 +126,7 @@ def route_requires_permission(token=None):
 
             return wrapped(*args, **kwargs)
         else:
-            raise falcon.HTTPUnauthorized
+            return on_fail(*args, **kwargs)
 
     return wrapper
 
