@@ -4,30 +4,28 @@ import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 
 import falcon
-from falcon_helpers.sqla.orm import BaseColumns
+from falcon_helpers.sqla.orm import BaseColumns, metadata, ModelBase
 
 from wrapt import decorator
 
-_tmp_metadata = sa.MetaData()
 
-
-user_groups = sa.Table('auth_user_groups', _tmp_metadata,
+user_groups = sa.Table('auth_user_groups', metadata,
     sa.Column('user_id', sa.Integer, sa.ForeignKey('auth_users.id')),
     sa.Column('group_id', sa.Integer, sa.ForeignKey('auth_groups.id'))
 )
 
-user_permissions = sa.Table('auth_user_permissions', _tmp_metadata,
+user_permissions = sa.Table('auth_user_permissions', metadata,
     sa.Column('user_id', sa.Integer, sa.ForeignKey('auth_users.id')),
     sa.Column('permissions_id', sa.Integer, sa.ForeignKey('auth_permissions.id'))
 )
 
-group_permissions = sa.Table('auth_group_permissions', _tmp_metadata,
+group_permissions = sa.Table('auth_group_permissions', metadata,
     sa.Column('group_id', sa.Integer, sa.ForeignKey('auth_groups.id')),
     sa.Column('permissions_id', sa.Integer, sa.ForeignKey('auth_permissions.id'))
 )
 
 
-class User(BaseColumns):
+class User(ModelBase, BaseColumns):
     __tablename__ = 'auth_users'
 
     ident = sa.Column(sa.Unicode, nullable=False, unique=True)
@@ -65,7 +63,7 @@ class User(BaseColumns):
         return token in self.permissions
 
 
-class Group(BaseColumns):
+class Group(ModelBase, BaseColumns):
     __tablename__ = 'auth_groups'
 
     ident = sa.Column(sa.Unicode, nullable=False, unique=True)
@@ -81,7 +79,7 @@ class Group(BaseColumns):
         return sa.orm.relationship('Permission', secondary='auth_group_permissions')
 
 
-class Permission(BaseColumns):
+class Permission(ModelBase, BaseColumns):
     __tablename__ = 'auth_permissions'
 
     ident = sa.Column(sa.Unicode, nullable=False, unique=True)

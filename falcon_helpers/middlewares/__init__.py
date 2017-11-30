@@ -9,3 +9,5 @@ from .sqla import SQLAlchemySessionMiddleware
 from .auth_required import AuthRequiredMiddleware
 
 from .marshmallow import MarshmallowMiddleware
+
+from .load_user import LoadUserMiddleware
