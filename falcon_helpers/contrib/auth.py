@@ -57,6 +57,9 @@ class User(ModelBase, BaseColumns):
         return list(itertools.chain(user_perms, group_perms))
 
     def has_permission(self, token):
+        if not token:
+            return False
+
         if not isinstance(token, str):
             raise ValueError('Token must be a string when using has_permission')
 
