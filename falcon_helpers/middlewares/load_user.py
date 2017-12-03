@@ -34,6 +34,6 @@ class LoadUserMiddleware:
                     .with_session(self.session())
                     .one_or_none())
 
-    def process_resource(self, req, resp, resource, params):
+    def process_request(self, req, resp):
         user_id = self.get_id(req)
         req.context['user'] = self.fetch_user(user_id)
