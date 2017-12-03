@@ -1,3 +1,12 @@
+0.5.0 - 2017-12-02
+##################
+
++* [NEW]  A brand-spanking new permission system with users, groups, and permissions
++* [FEAT] Post-login redirect is now configurable.
++* [FEAT] Create a simple redirection resource
++* [FEAT] Jinja2 Middleware can take application globals to inject into the template
++* [FEAT] Added a mixin for testing entities
+
 0.4.2 - 2017-10-25
 ==================
 * Enable Auth Middleware to always run. Helpful when then entire application is
