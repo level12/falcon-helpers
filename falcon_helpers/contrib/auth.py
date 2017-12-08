@@ -29,6 +29,7 @@ class User(ModelBase, BaseColumns):
     __tablename__ = 'auth_users'
 
     ident = sa.Column(sa.Unicode, nullable=False, unique=True)
+    is_superuser = sa.Column(sa.types.Boolean, nullable=False, server_default='f')
 
     groups = sa.orm.relationship('Group', secondary='auth_user_groups')
     assigned_permissions = sa.orm.relationship('Permission', secondary='auth_user_permissions')
@@ -51,6 +52,9 @@ class User(ModelBase, BaseColumns):
         return list(itertools.chain(user_perms, group_perms))
 
     def has_permission(self, token):
+        if self.is_superuser:
+            return True
+
         if not token:
             return False
 
