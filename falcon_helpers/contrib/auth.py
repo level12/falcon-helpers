@@ -30,6 +30,8 @@ class User(ModelBase, BaseColumns):
 
     ident = sa.Column(sa.Unicode, nullable=False, unique=True)
 
+    groups = sa.orm.relationship('Group', secondary='auth_user_groups')
+    assigned_permissions = sa.orm.relationship('Permission', secondary='auth_user_permissions')
 
     def __repr__(self):
         return self.ident
@@ -40,14 +42,6 @@ class User(ModelBase, BaseColumns):
     @classmethod
     def get_by_id(cls, ident):
         return sa.orm.Query(cls).filter(cls.ident == ident)
-
-    @declared_attr
-    def groups(cls):
-        return sa.orm.relationship('Group', secondary='auth_user_groups')
-
-    @declared_attr
-    def assigned_permissions(cls):
-        return sa.orm.relationship('Permission', secondary='auth_user_permissions')
 
     @property
     def permissions(self):
