@@ -1,7 +1,9 @@
 import datetime
 import random
+import string
 
 import sqlalchemy as sa
+from . import columns
 
 
 def random_data_for_type(column, numeric_low=-100, numeric_high=100):
