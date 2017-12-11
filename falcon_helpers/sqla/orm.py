@@ -42,7 +42,7 @@ class Testable:
         12, they write high-class software, check them out: https://level12.io
         """
 
-        NUMERIC_HIGH, NUMERIC_LOW = kwargs.pop('_numeric_defaults_range', (-100, 100))
+        NUMERIC_LOW, NUMERIC_HIGH = kwargs.pop('_numeric_defaults_range', (-100, 100))
 
         insp = sa.inspection.inspect(cls)
 
