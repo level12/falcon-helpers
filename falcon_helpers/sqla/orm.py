@@ -17,11 +17,6 @@ convention = {
 metadata = MetaData(naming_convention=convention)
 
 
-@as_declarative(metadata=metadata)
-class ModelBase:
-    pass
-
-
 class BaseColumns:
     id = sa.Column(sa.Integer, primary_key=True, nullable=False)
 
@@ -67,3 +62,8 @@ class Testable:
                 pass
 
         return cls(**kwargs)
+
+
+@as_declarative(metadata=metadata)
+class ModelBase(Testable):
+    pass
