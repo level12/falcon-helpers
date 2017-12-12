@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declared_attr
 
 import falcon
 from falcon_helpers.sqla.orm import BaseColumns, metadata, ModelBase
+from falcon_helpers.sqla.db import session
 
 from wrapt import decorator
 
@@ -46,6 +47,9 @@ class User(ModelBase, BaseColumns):
 
     @property
     def permissions(self):
+        if self.is_superuser:
+            return session.query(Permission).all()
+
         group_perms = list(itertools.chain.from_iterable(
             [x.permissions for x in self.groups]))
         user_perms = self.assigned_permissions
