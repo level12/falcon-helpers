@@ -3,14 +3,15 @@ from sqlalchemy.orm import (
     sessionmaker,
 )
 
+from falcon_helpers.sqla.db import session
+
 
 class SQLAlchemySessionMiddleware:
-    def __init__(self, engine):
-        session_factory = sessionmaker(bind=engine)
-        self.mksession = scoped_session(session_factory)
+    def __init__(self, session):
+        self.session = session
 
     def process_resource(self, req, resp, resource, params):
-        resource.session = self.mksession()
+        resource.session = self.session()
 
     def process_response(self, req, resp, resource, req_succeeded):
         if not hasattr(resource, 'session'):
