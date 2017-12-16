@@ -1,3 +1,11 @@
+0.6.0 - 2017-12-15
+##################
+
+** [NEW] Added a global SQLAlchemy Scoped Session to facilitate testing and other items
+** [CHANGE] AuthRequiredMiddleware was split into two and there is a new ParseJWTMiddleware
+** [BUG] Cleaned up a number of issues with the way SQLAlchemy ORM is being used
+
+
 0.5.0 - 2017-12-02
 ##################
 
