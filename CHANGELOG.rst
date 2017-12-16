@@ -1,3 +1,11 @@
+0.6.1 - 2017-12-15
+##################
+
+** [BUG] Add a req/resp to failed action functions
+** [FEAT] Make ParseJWTMiddleware available at the middleware level
+** [BUG] Allow setting of the get_id function
+
+
 0.6.0 - 2017-12-15
 ##################
 
