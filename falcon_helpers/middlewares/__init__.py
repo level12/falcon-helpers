@@ -11,3 +11,4 @@ from .auth_required import AuthRequiredMiddleware
 from .marshmallow import MarshmallowMiddleware
 
 from .load_user import LoadUserMiddleware
+from .parsejwt import ParseJWTMiddleware

@@ -19,7 +19,7 @@ class LoadUserMiddleware:
     def __init__(self, session, user_cls, get_id=None):
         self.session = session
         self.user_cls = user_cls
-        self.get_id = self._get_id
+        self.get_id = get_id or self._get_id
 
     @staticmethod
     def _get_id(req):

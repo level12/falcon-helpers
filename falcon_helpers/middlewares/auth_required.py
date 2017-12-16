@@ -53,4 +53,5 @@ class AuthRequiredMiddleware:
         token_value = None if isinstance(token_value, Exception) else token_value
 
         if required and not token_value:
-            return self.failed_action(token_value)
+            return self.failed_action(token_value, req=req, resp=resp,
+                                      resource=resource, params=params)

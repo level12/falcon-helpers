@@ -91,4 +91,4 @@ class ParseJWTMiddleware:
         try:
             req.context['auth_token_contents'] = self.verify_request(token)
         except Exception as e:
-            return self.failed_action(e)
+            return self.failed_action(e, req, resp)
