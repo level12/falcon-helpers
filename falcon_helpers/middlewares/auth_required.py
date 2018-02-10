@@ -1,7 +1,7 @@
 import falcon
 
 
-def _default_failed(reason=None):
+def _default_failed(req, resp, **kwargs):
     raise falcon.HTTPFound('/auth/login')
 
 
@@ -18,7 +18,7 @@ class AuthRequiredMiddleware:
             def on_get(self, req, resp):
                 # ...
 
-        def when_fails_auth(token_value):
+        def when_fails_auth(req, resp, token_value):
             raise TerribleException(token_value)
 
         api = falcon.API(
@@ -53,5 +53,4 @@ class AuthRequiredMiddleware:
         token_value = None if isinstance(token_value, Exception) else token_value
 
         if required and not token_value:
-            return self.failed_action(token_value, req=req, resp=resp,
-                                      resource=resource, params=params)
+            return self.failed_action(req=req, resp=resp, token_value=token_value)
