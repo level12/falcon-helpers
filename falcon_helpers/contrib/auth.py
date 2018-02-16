@@ -98,7 +98,7 @@ class Permission(ModelBase, BaseColumns):
     ident = sa.Column(sa.Unicode, nullable=False, unique=True)
 
     def __repr__(self):
-        return self.ident
+        return '<Permission ident=' + self.ident + '>'
 
     def __str__(self):
         return self.ident
