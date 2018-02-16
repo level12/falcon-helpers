@@ -9,6 +9,8 @@ from falcon_helpers.sqla.db import session
 
 from wrapt import decorator
 
+import jwt
+
 
 user_groups = sa.Table('auth_user_groups', metadata,
     sa.Column('user_id', sa.Integer, sa.ForeignKey('auth_users.id')),
@@ -66,6 +68,12 @@ class User(ModelBase, BaseColumns):
             raise ValueError('Token must be a string when using has_permission')
 
         return token in self.permissions
+
+    def generate_auth_token(self, audience, secret, algo='HS512'):
+        return jwt.encode({
+            'sub': self.ident,
+            'aud': audience,
+        }, secret, algorithm=algo)
 
 
 class Group(ModelBase, BaseColumns):
