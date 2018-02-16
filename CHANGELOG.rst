@@ -1,3 +1,13 @@
+0.7.0 - 2018-02-15
+##################
+
+** [NEW] Added a CRUD Base Library
+** [FEAT] Added a token generation method to the user
+** [CHANGE] Cleaned up the REPR for permissions entity
+** [CHANGE] Only close the SA session when failure occurs
+** [FIX] auth_required accepts the proper arguments
+
+
 0.6.1 - 2017-12-15
 ##################
 
