@@ -17,8 +17,10 @@ class SQLAlchemySessionMiddleware:
         if not hasattr(resource, 'session'):
             return
 
-        if not req_succeeded:
-            resource.session.rollback()
-        else:
-            resource.session.commit()
+        try:
+            if not req_succeeded:
+                resource.session.rollback()
+            else:
+                resource.session.commit()
+        except:
             resource.session.close()
