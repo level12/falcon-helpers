@@ -19,17 +19,17 @@ class ListBase:
 
     default_order = None
 
-    def on_get(self, req, resp):
-        result = self.get_objects(req)
+    def on_get(self, req, resp, **kwargs):
+        result = self.get_objects(req, **kwargs)
         schema = self.schema(many=True)
 
         resp.status = falcon.HTTP_200
         resp.body = schema.dump(result)
 
-    def base_query(self):
+    def base_query(self, req, **kwargs):
         return self.session.query(self.db_cls)
 
-    def pagination_hook(self, query, req):
+    def pagination_hook(self, query, req, **kwargs):
         """Create a hook for pagination"""
         size = int(req.params.get('pageSize', 50))
 
@@ -41,10 +41,10 @@ class ListBase:
 
         return query.limit(size).offset((page * size))
 
-    def filter_hook(self, query, req):
+    def filter_hook(self, query, req, **kwargs):
         return query
 
-    def order_hook(self, query, req):
+    def order_hook(self, query, req, **kwargs):
         request_order = req.params.get('sort_by', [])
 
         # This takes advantage of falcons duplicate-param parsing which returns
@@ -58,12 +58,16 @@ class ListBase:
         default_order = request_order or self.default_order or self.db_cls.__mapper__.primary_key
         return query.order_by(*default_order)
 
-    def get_objects(self, req):
-        base = self.base_query()
-        order = self.order_hook(base, req)
-        paged = self.pagination_hook(order, req)
+    def custom_hook(self, query, req, **kwargs):
+        return query
 
-        return paged.all()
+    def get_objects(self, req, *args, **kwargs):
+        base = self.base_query(req, **kwargs)
+        order = self.order_hook(base, req, **kwargs)
+        paged = self.pagination_hook(order, req, **kwargs)
+        final = self.custom_hook(paged, req, **kwargs)
+
+        return final.all()
 
 
 class CrudBase:

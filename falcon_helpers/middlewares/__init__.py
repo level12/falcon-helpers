@@ -12,3 +12,4 @@ from .marshmallow import MarshmallowMiddleware
 
 from .load_user import LoadUserMiddleware
 from .parsejwt import ParseJWTMiddleware
+from .multipart import MultipartMiddleware
