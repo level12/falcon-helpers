@@ -1,3 +1,13 @@
+0.8.0 - 2018-02-23
+##################
+
+* [NEW] Add a Basic File Storage System (7c0bd4b_)
+* [FEAT] CRUD resources now support \*\*kwargs (1d4543_)
+
+.. _7c0bd4b: https://gitlab.com/skosh/falcon-helpers/commit/7c0bd4b
+.. _1d4543: https://gitlab.com/skosh/falcon-helpers/commit/1d4543
+
+
 0.7.0 - 2018-02-15
 ##################
 
