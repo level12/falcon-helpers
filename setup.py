@@ -22,6 +22,9 @@ setup(
         'sqlalchemy',
         'wrapt',
     ],
+    extras_require={
+        's3': ['boto3']
+    },
     zip_safe=True,
     license='BSD',
     author="Nick Zaccardi",
