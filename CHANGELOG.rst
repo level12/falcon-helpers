@@ -1,3 +1,10 @@
+0.9.0 - 2018-02-23
+##################
+
+* [FEAT] Added Support to Downloading
+* [CHANGE] Renamed contrib.upload to contrib.storage
+
+
 0.8.0 - 2018-02-23
 ##################
 
