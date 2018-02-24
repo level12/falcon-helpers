@@ -1,2 +1,2 @@
 from . import auth
-from . import upload
+from . import storage
