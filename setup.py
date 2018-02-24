@@ -17,6 +17,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'falcon',
+        'falcon_multipart',
         'pyjwt',
         'cryptography',
         'sqlalchemy',
