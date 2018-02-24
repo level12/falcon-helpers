@@ -30,7 +30,9 @@ class S3FileStore:
     storage_type = 'OBJECT::S3'
 
     def __init__(self, bucket, prefix='/', uidgen=uuid.uuid4,
-                 default_content_type='application/octet-stream'):
+                 default_content_type='application/octet-stream',
+                 endpoint=None,
+                 ):
         if not prefix.startswith('/'):
             raise AssertionError('S3ImageStore requires an absolute path.')
 
@@ -42,10 +44,29 @@ class S3FileStore:
         self.bucket = bucket
         self.uidgen = uidgen
         self.default_content_type = default_content_type
+        self.endpoint = endpoint
 
     @property
     def connection(self):
         return boto3.resource('s3')
+
+    @property
+    def client(self):
+        return boto3.client('s3', endpoint_url=self.endpoint)
+
+    def make_download_url(self, doc, expires_in=60):
+        return self.client.generate_presigned_url(
+            ClientMethod='get_object',
+            ExpiresIn=expires_in,
+            Params={
+                'Bucket': self.bucket,
+                'Key': doc.path.lstrip('/'),
+                'ResponseContentDisposition': 'attachment; filename="{}"'.format(doc.name)
+            })
+
+    def make_response(self, doc, resp):
+        resp.status = falcon.HTTP_303
+        resp.location = self.make_download_url(doc)
 
     def save(self, filename, fp, path=None):
         unique_name = self.uidgen()
@@ -83,9 +104,13 @@ class S3FileStore:
 class LocalFileStore:
     storage_type = 'FILE::LOCAL'
 
-    def __init__(self, path, uidgen=uuid.uuid4):
+    def __init__(self, path, uidgen=uuid.uuid4, default_content_type='application/octet-stream'):
         self.path = pathlib.Path(path)
         self.uidgen = uidgen
+
+        # Setup the mimetypes database
+        mimetypes.init()
+        self.default_content_type = default_content_type
 
     def save(self, filename, fp, path=None):
         unique_name = self.uidgen()
@@ -104,5 +129,14 @@ class LocalFileStore:
                         storage_type=self.storage_type,
                         response=result)
 
+    def make_response(self, doc, resp):
+        (content_type, content_encoding) = mimetypes.guess_type(doc.name)
 
+        if not content_type:
+            content_type = self.default_content_type
 
+        with open(doc.path) as f:
+            resp.downloadable_as = doc.name
+            resp.content_type = content_type
+            resp.status = falcon.HTTP_200
+            resp.body = f.read()
