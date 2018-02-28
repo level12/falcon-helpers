@@ -1,3 +1,4 @@
+import random
 import sqlalchemy as sa
 from sqlalchemy.schema import MetaData
 from sqlalchemy.ext.declarative import as_declarative
@@ -26,6 +27,7 @@ class BaseColumns:
 
 
 class Testable:
+    testing_random_nulls = True
 
     @classmethod
     def testing_create(cls, **kwargs):
@@ -56,8 +58,11 @@ class Testable:
 
         for column in (col for col in insp.columns if not skippable(col)):
             try:
-                kwargs[column.key] = random_data_for_type(
-                    column, NUMERIC_HIGH, NUMERIC_LOW)
+                if column.nullable and cls.testing_random_nulls and random.choice([True, False]):
+                    kwargs[column.key] = None
+                else:
+                    kwargs[column.key] = random_data_for_type(
+                        column, NUMERIC_HIGH, NUMERIC_LOW)
             except ValueError:
                 pass
 
