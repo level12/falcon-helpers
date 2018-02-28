@@ -1,3 +1,9 @@
+0.9.2 - 2018-02-27
+##################
+
+[CHANGE] Add in fuzzy testing for nullable ORM columns
+
+
 0.9.1 - 2018-02-24
 ##################
 * [BUG] Add the Falcon-Multipart Requirement
