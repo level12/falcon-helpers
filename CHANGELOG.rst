@@ -1,3 +1,10 @@
+0.9.3 - 2018-02-28
+##################
+
+* [BUG] Fix an issue with binary file opening
+* [BUG] Utilize the correct exception with CRUD Base
+
+
 0.9.2 - 2018-02-27
 ##################
 
