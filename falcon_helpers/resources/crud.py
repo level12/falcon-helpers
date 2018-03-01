@@ -87,7 +87,7 @@ class CrudBase:
         result = self.session.query(self.db_cls).get(obj_id)
 
         if not result:
-            raise falcon.HTTP_404
+            raise falcon.HTTPNotFound
 
         schema = self.schema()
         resp.status = falcon.HTTP_200
