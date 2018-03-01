@@ -1,3 +1,4 @@
+import io
 import os.path
 import pathlib
 import mimetypes
@@ -31,7 +32,7 @@ class S3FileStore:
 
     def __init__(self, bucket, prefix='/', uidgen=uuid.uuid4,
                  default_content_type='application/octet-stream',
-                 endpoint=None,
+                 endpoint=None
                  ):
         if not prefix.startswith('/'):
             raise AssertionError('S3ImageStore requires an absolute path.')
@@ -104,9 +105,11 @@ class S3FileStore:
 class LocalFileStore:
     storage_type = 'FILE::LOCAL'
 
-    def __init__(self, path, uidgen=uuid.uuid4, default_content_type='application/octet-stream'):
+    def __init__(self, path, uidgen=uuid.uuid4, default_content_type='application/octet-stream',
+                 _fopen=io.open):
         self.path = pathlib.Path(path)
         self.uidgen = uidgen
+        self._fopen = _fopen
 
         # Setup the mimetypes database
         mimetypes.init()
@@ -135,8 +138,12 @@ class LocalFileStore:
         if not content_type:
             content_type = self.default_content_type
 
-        with open(doc.path) as f:
-            resp.downloadable_as = doc.name
-            resp.content_type = content_type
-            resp.status = falcon.HTTP_200
-            resp.body = f.read()
+        resp.stream = self._fopen(doc.path, 'rb')
+        stream_len = os.path.getsize(doc.path)
+        resp.content_length = stream_len
+
+        resp.downloadable_as = doc.name
+
+        resp.content_type = content_type
+
+        resp.status = falcon.HTTP_200
