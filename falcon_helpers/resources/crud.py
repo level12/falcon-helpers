@@ -82,19 +82,27 @@ class CrudBase:
     """
     db_cls = None
     schema = None
+    default_param_name = 'obj_id'
 
-    def on_get(self, req, resp, obj_id):
-        result = self.session.query(self.db_cls).get(obj_id)
+    def get_object(self, req, **kwargs):
+        try:
+            obj_id = kwargs[default_param_name]
+            return self.session.query(self.db_cls).get(obj_id)
+        except KeyError:
+            raise falcon.HTTPInternalServerError("Misconfigured route")
+
+    def on_get(self, req, resp, **kwargs):
+        result = self.get_object(req, **kwargs)
 
         if not result:
             raise falcon.HTTPNotFound
 
         schema = self.schema()
-        resp.status = falcon.HTTP_200
         resp.body = schema.dump(result)
+        resp.status = falcon.HTTP_200
 
 
-    def on_put(self, req, resp, obj_id):
+    def on_put(self, req, resp, **kwargs):
         self.session.add(req.context['dto'].data)
         self.session.flush()
 
@@ -102,7 +110,7 @@ class CrudBase:
         resp.body = self.schema().dump(req.context['dto'].data)
 
 
-    def on_post(self, req, resp, obj_id):
+    def on_post(self, req, resp, **kwargs):
         self.session.add(req.context['dto'].data)
         self.session.flush()
 
@@ -110,12 +118,13 @@ class CrudBase:
         resp.body = self.schema().dump(req.context['dto'].data)
 
 
-    def on_delete(self, req, resp, obj_id):
+    def on_delete(self, req, resp, **kwargs):
         try:
-            result = (self.session
-                     .query(self.db_cls)
-                     .filter_by(id=obj_id)
-                     .delete(synchronize_session=False))
+            obj = self.get_object(req, **kwargs)
+
+            if obj:
+                obj.delete(synchronize_session=False)
+
         except sa.exc.IntegrityError:
             self.session.rollback()
             resp.status = falcon.HTTP_400
