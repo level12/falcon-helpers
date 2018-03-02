@@ -86,7 +86,7 @@ class CrudBase:
 
     def get_object(self, req, **kwargs):
         try:
-            obj_id = kwargs[default_param_name]
+            obj_id = kwargs[self.default_param_name]
             return self.session.query(self.db_cls).get(obj_id)
         except KeyError:
             raise falcon.HTTPInternalServerError("Misconfigured route")
