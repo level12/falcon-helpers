@@ -1,3 +1,4 @@
+import enum
 import itertools
 
 import sqlalchemy as sa
@@ -64,10 +65,13 @@ class User(ModelBase, BaseColumns):
         if not token:
             return False
 
-        if not isinstance(token, str):
+        # support enum values
+        final = token.value if isinstance(token, enum.Enum) else token
+
+        if not isinstance(final, str):
             raise ValueError('Token must be a string when using has_permission')
 
-        return token in self.permissions
+        return final in self.permissions
 
     def generate_auth_token(self, audience, secret, algo='HS512'):
         return jwt.encode({
