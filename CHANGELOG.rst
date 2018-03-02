@@ -1,3 +1,11 @@
+0.9.5 - 2018-03-01
+##################
+
+* [NEW] get_object was implemented for CrudBase
+* [FEAT] has_permission now supports an enum type
+* [NEW] **kwargs is now used on CrudBase
+
+
 0.9.3 - 2018-02-28
 ##################
 
