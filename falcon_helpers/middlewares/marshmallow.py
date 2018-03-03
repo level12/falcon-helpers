@@ -15,7 +15,7 @@ class MarshmallowMiddleware:
             # If the resource doesn't have a schema the loading would be impossible
             hasattr(resource, 'schema'),
             # Only consider JSON requests for auto-parsing
-            req.content_type == 'application/json',
+            (req.content_type and req.content_type.startswith('application/json')),
         )
 
         # Check that all the conditions for parsing are met
