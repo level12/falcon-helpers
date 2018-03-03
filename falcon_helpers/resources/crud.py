@@ -1,3 +1,4 @@
+import ujson
 import sqlalchemy as sa
 import falcon
 
@@ -123,12 +124,12 @@ class CrudBase:
             obj = self.get_object(req, **kwargs)
 
             if obj:
-                obj.delete(synchronize_session=False)
+                self.session.delete(obj)
 
         except sa.exc.IntegrityError:
             self.session.rollback()
             resp.status = falcon.HTTP_400
-            resp.json = {'errors': [('Unable to delete because the object is '
-                                    'connected to other objects')]}
+            resp.media = {'errors': [('Unable to delete because the object is '
+                                      'connected to other objects')]}
         else:
             resp.status = falcon.HTTP_204

@@ -16,11 +16,16 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
+        'cryptography',
         'falcon',
         'falcon_multipart',
+        'jinja2',
+        'marshmallow',
+        'marshmallow-sqlalchemy',
         'pyjwt',
-        'cryptography',
         'sqlalchemy',
+        'requests',
+        'ujson',
         'wrapt',
     ],
     extras_require={
