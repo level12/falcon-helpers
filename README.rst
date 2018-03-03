@@ -2,6 +2,14 @@
 .. role:: python(code)
   :language: python
 
+
+.. image:: https://codecov.io/gl/skosh/falcon-helpers/branch/master/graph/badge.svg
+  :target: https://codecov.io/gl/skosh/falcon-helpers
+
+.. image:: https://gitlab.com/skosh/falcon-helpers/badges/master/pipeline.svg
+  :target: https://gitlab.com/skosh/falcon-helpers/commits/master
+
+
 ==============
 Falcon Helpers
 ==============
