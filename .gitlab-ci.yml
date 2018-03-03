@@ -1,0 +1,9 @@
+stages:
+  - test
+
+test_tox:
+  image: python:3.6-alpine3.6
+  stage: test
+  script:
+    - tox
+    - codecov -e $CODECOV_TOKEN

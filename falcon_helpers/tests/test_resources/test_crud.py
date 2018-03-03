@@ -13,7 +13,8 @@ from falcon_helpers.sqla.orm import BaseColumns, Testable, metadata
 from falcon_helpers.sqla.db import session
 
 
-Base = sa.ext.declarative.declarative_base()
+engine = sa.create_engine('sqlite://')
+Base = sa.ext.declarative.declarative_base(bind=engine)
 
 
 class ModelOther(Base, BaseColumns, Testable):
@@ -42,9 +43,6 @@ class BasicCrud(CrudBase):
 
 @pytest.fixture
 def app():
-    engine = sa.create_engine('sqlite://')
-    session.configure(bind=engine)
-    Base.metadata.bind = engine
     Base.metadata.drop_all()
     Base.metadata.create_all()
 
@@ -136,5 +134,5 @@ def test_crud_base_delete_with_relationship(client):
     assert session.query(ModelTest).get(m1.id) == m1
     assert session.query(ModelOther).get(mo1.id) == mo1
 
-    assert 'errors' in resp.jsoĸ
+    assert 'errors' in resp.json
     assert resp.json['errors'] == ['Unable to delete because the object is connected to other objects']

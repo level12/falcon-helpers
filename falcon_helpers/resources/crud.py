@@ -125,6 +125,7 @@ class CrudBase:
 
             if obj:
                 self.session.delete(obj)
+                self.session.flush()
 
         except sa.exc.IntegrityError:
             self.session.rollback()
