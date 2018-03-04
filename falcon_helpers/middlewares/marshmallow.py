@@ -14,6 +14,8 @@ class MarshmallowMiddleware:
             bool(req.content_length),
             # If the resource doesn't have a schema the loading would be impossible
             hasattr(resource, 'schema'),
+            # If the resource has turned off auto marshaling
+            getattr(resource, 'auto_marshall', True),
             # Only consider JSON requests for auto-parsing
             (req.content_type and req.content_type.startswith('application/json')),
         )
