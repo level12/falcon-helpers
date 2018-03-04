@@ -1,3 +1,12 @@
+0.10.0 - 2018-03-03
+###################
+
+* [NEW] We now have a CI system with CodeCoverage
+* [FEAT] You can now user auth_marshal=False to turn off auto JSON marshaling to Marshmallow
+* [FEAT] Added a few helpful functions on auth.user
+* [BUG] Fixed object deletion of CrudBase (which was what kicked the CI setup into high-gear)
+
+
 0.9.6 - 2018-03-02
 ##################
 
