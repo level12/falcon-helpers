@@ -73,6 +73,12 @@ class User(ModelBase, BaseColumns):
 
         return final in self.permissions
 
+    def has_any_permission(self, *tokens):
+        return any([self.has_permission(x) for x in tokens])
+
+    def has_all_permissions(self, *tokens):
+        return all([self.has_permission(x) for x in tokens])
+
     def generate_auth_token(self, audience, secret, algo='HS512'):
         return jwt.encode({
             'sub': self.ident,
