@@ -69,6 +69,15 @@ class S3FileStore:
         resp.status = falcon.HTTP_303
         resp.location = self.make_download_url(doc)
 
+    def remove(self, path):
+        obj = self.connection.Object(self.bucket, path.lstrip('/'))
+        resp = obj.delete()
+
+        if resp['ResponseMetadata']['HTTPStatusCode'] == 204:
+            return True
+        else:
+            return False
+
     def save(self, filename, fp, path=None):
         unique_name = self.uidgen()
         (content_type, content_encoding) = mimetypes.guess_type(filename)
@@ -114,6 +123,14 @@ class LocalFileStore:
         # Setup the mimetypes database
         mimetypes.init()
         self.default_content_type = default_content_type
+
+    def remove(self, path):
+        try:
+            os.remove(path)
+        except FileNotFoundError as e:
+            return True
+        else:
+            return True
 
     def save(self, filename, fp, path=None):
         unique_name = self.uidgen()
