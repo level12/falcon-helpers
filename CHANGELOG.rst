@@ -1,3 +1,9 @@
+0.10.1 - 2018-03-05
+###################
+
+* [FEAT] Added a remove function to storage backends
+
+
 0.10.0 - 2018-03-03
 ###################
 
