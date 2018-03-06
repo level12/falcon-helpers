@@ -5,6 +5,10 @@ from marshmallow.schema import MarshalResult
 
 class MarshmallowMiddleware:
 
+    def _default_load(self, data, req, resource, params):
+        schema = resource.schema()
+        return schema.load(data, session=resource.session)
+
     def process_resource(self, req, resp, resource, params):
 
         should_parse =  (
@@ -31,18 +35,19 @@ class MarshmallowMiddleware:
         if req.method == 'PUT':
             data['id'] = params['obj_id']
 
-        schema = resource.schema()
-        data = schema.load(data, session=resource.session)
+        loaded = (self._default_load(data, req, resource, params)
+                  if not hasattr(resource, 'schema_loader')
+                  else resource.schema_loader(data, req, resource, params))
 
-        if data.errors:
+        if loaded.errors:
             #  This should probably return whatever the accept header indicates
             raise falcon.HTTPStatus(
                 falcon.HTTP_400,
                 headers={'Content-Type': 'application/json'},
-                body=ujson.dumps({'errors': data.errors}),
+                body=ujson.dumps({'errors': loaded.errors}),
             )
 
-        req.context['dto'] = data
+        req.context['dto'] = loaded
         req.context['_marshalled'] = True
 
     def process_response(self, req, resp, resource, req_succeeded):
