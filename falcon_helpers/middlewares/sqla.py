@@ -22,5 +22,6 @@ class SQLAlchemySessionMiddleware:
                 resource.session.rollback()
             else:
                 resource.session.commit()
-        except:
-            resource.session.close()
+        except Exception as e:
+            resource.session.remove()
+            raise
