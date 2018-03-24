@@ -71,4 +71,7 @@ class Testable:
 
 @as_declarative(metadata=metadata)
 class ModelBase(Testable):
-    pass
+
+    @classmethod
+    def orm_column_names(cls):
+        return frozenset(x.key for x in sa.inspect(cls).attrs)

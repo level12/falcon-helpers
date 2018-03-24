@@ -43,6 +43,12 @@ class ListBase:
         return query.limit(size).offset((page * size))
 
     def filter_hook(self, query, req, **kwargs):
+        columns = self.db_cls.orm_column_names() & req.params.keys()
+
+        query = query.filter(
+            *[getattr(self.db_cls, x).ilike(req.get_param(x)) for x in columns]
+        )
+
         return query
 
     def order_hook(self, query, req, **kwargs):
@@ -64,7 +70,8 @@ class ListBase:
 
     def get_objects(self, req, *args, **kwargs):
         base = self.base_query(req, **kwargs)
-        order = self.order_hook(base, req, **kwargs)
+        filtered = self.filter_hook(base, req, **kwargs)
+        order = self.order_hook(filtered, req, **kwargs)
         paged = self.pagination_hook(order, req, **kwargs)
         final = self.custom_hook(paged, req, **kwargs)
 
