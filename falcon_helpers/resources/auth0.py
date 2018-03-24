@@ -29,7 +29,7 @@ class LoginCallbackResource:
     def __init__(self, client_url, client_id, client_secret, callback_uri,
                  cookie_domain, secure_cookie, cookie_name='X-AuthToken',
                  cookie_max_age=(24 * 60 * 60), cookie_path='/',
-                 redirect_uri='/dashboard'
+                 redirect_uri='/dashboard', after_login=None
                  ):
         self.client_url = client_url
         self.client_id = client_id
@@ -42,6 +42,7 @@ class LoginCallbackResource:
         self.cookie_name = cookie_name
         self.cookie_max_age = cookie_max_age
         self.cookie_path = cookie_path
+        self.after_login = after_login or (lambda data, req, resp: resp)
 
     def on_get(self, req, resp):
         try:
@@ -54,6 +55,8 @@ class LoginCallbackResource:
         self.set_cookie_contents(resp, data)
         resp.set_header('Location', self.redirect_uri)
         resp.status = falcon.HTTP_302
+
+        self.after_login(data, req=req, resp=resp)
 
     def get_user_data(self, auth_code):
         token = requests.post(
