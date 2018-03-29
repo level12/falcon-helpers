@@ -6,10 +6,10 @@ import falcon
 import falcon.testing
 import marshmallow_sqlalchemy as ms
 
-from falcon_helpers.resources.crud import CrudBase
+from falcon_helpers.resources.crud import CrudBase, ListBase
 from falcon_helpers.middlewares.sqla import SQLAlchemySessionMiddleware
 from falcon_helpers.middlewares.marshmallow import MarshmallowMiddleware
-from falcon_helpers.sqla.orm import BaseColumns, Testable, metadata
+from falcon_helpers.sqla.orm import BaseColumns, BaseFunctions, Testable, metadata
 from falcon_helpers.sqla.db import session
 
 
@@ -23,7 +23,7 @@ class ModelOther(Base, BaseColumns, Testable):
     test_id = sa.Column(sa.Integer, sa.ForeignKey('mtest.id'), nullable=False)
 
 
-class ModelTest(Base, BaseColumns, Testable):
+class ModelTest(Base, BaseColumns, BaseFunctions, Testable):
     __tablename__ = 'mtest'
 
     name = sa.Column(sa.Unicode, nullable=False)
@@ -37,6 +37,10 @@ class ModelSchema(ms.ModelSchema):
 
 
 class BasicCrud(CrudBase):
+    db_cls = ModelTest
+    schema = ModelSchema
+
+class List(ListBase):
     db_cls = ModelTest
     schema = ModelSchema
 
@@ -55,6 +59,7 @@ def app():
 
     app.add_route('/crud/{obj_id}', BasicCrud())
     app.add_route('/bad', BasicCrud())
+    app.add_route('/list', List())
     return app
 
 
@@ -136,3 +141,16 @@ def test_crud_base_delete_with_relationship(client):
 
     assert 'errors' in resp.json
     assert resp.json['errors'] == ['Unable to delete because the object is connected to other objects']
+
+
+def test_listbase_get(client):
+    m1 = ModelTest.testing_create()
+    m2 = ModelTest.testing_create()
+    session.add_all([m1, m2])
+    session.commit()
+
+    resp = client.simulate_get(f'/list', query_string=f'name={m1.name}')
+
+    assert len(resp.json) == 1
+    assert resp.json[0]['id'] == m1.id
+    assert resp.json[0]['name'] == m1.name

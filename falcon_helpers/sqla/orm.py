@@ -25,6 +25,11 @@ class BaseColumns:
     updated_ts = sa.Column(sa.DateTime, server_default=utcnow(),
                            server_onupdate=utcnow())
 
+class BaseFunctions:
+    @classmethod
+    def orm_column_names(cls):
+        return frozenset(x.key for x in sa.inspect(cls).attrs)
+
 
 class Testable:
     testing_random_nulls = True
@@ -70,8 +75,5 @@ class Testable:
 
 
 @as_declarative(metadata=metadata)
-class ModelBase(Testable):
-
-    @classmethod
-    def orm_column_names(cls):
-        return frozenset(x.key for x in sa.inspect(cls).attrs)
+class ModelBase(Testable, BaseFunctions):
+    pass
