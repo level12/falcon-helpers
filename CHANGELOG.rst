@@ -1,3 +1,13 @@
+0.11.0 - 2018-03-29
+###################
+
+* [FEAT] Add filter by field name on ListBase
+* [FEAT] Allow turning off auto-marshalling
+* [BUG] Session closing could fail with exceptions
+
+
+
+
 0.10.1 - 2018-03-05
 ###################
 
