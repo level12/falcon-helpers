@@ -92,6 +92,10 @@ class CrudBase:
     schema = None
     default_param_name = 'obj_id'
 
+    def delete_object(self, obj, req, **kwargs):
+        self.session.delete(obj)
+        self.session.flush()
+
     def get_object(self, req, **kwargs):
         try:
             obj_id = kwargs[self.default_param_name]
@@ -131,10 +135,10 @@ class CrudBase:
             obj = self.get_object(req, **kwargs)
 
             if obj:
-                self.session.delete(obj)
-                self.session.flush()
+                self.delete_object(obj, req, **kwargs)
 
-        except sa.exc.IntegrityError:
+        except sa.exc.IntegrityError as e:
+            import pdb; pdb.set_trace()
             self.session.rollback()
             resp.status = falcon.HTTP_400
             resp.media = {'errors': [('Unable to delete because the object is '
