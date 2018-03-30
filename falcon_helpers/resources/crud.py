@@ -138,7 +138,6 @@ class CrudBase:
                 self.delete_object(obj, req, **kwargs)
 
         except sa.exc.IntegrityError as e:
-            import pdb; pdb.set_trace()
             self.session.rollback()
             resp.status = falcon.HTTP_400
             resp.media = {'errors': [('Unable to delete because the object is '
