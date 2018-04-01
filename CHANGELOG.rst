@@ -1,3 +1,8 @@
+0.11.3 - 2018-03-31
+###################
+
+* [FEAT] Allow passing additional data to generate auth token
+
 0.11.2 - 2018-03-30
 ###################
 
