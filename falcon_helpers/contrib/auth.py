@@ -79,11 +79,10 @@ class User(ModelBase, BaseColumns):
     def has_all_permissions(self, *tokens):
         return all([self.has_permission(x) for x in tokens])
 
-    def generate_auth_token(self, audience, secret, algo='HS512'):
-        return jwt.encode({
-            'sub': self.ident,
-            'aud': audience,
-        }, secret, algorithm=algo)
+    def generate_auth_token(self, audience, secret, algo='HS512', additional_data=None):
+        data = {'sub': self.ident, 'aud': audience}
+        data.update(additional_data) if additional_data else None
+        return jwt.encode(data, secret, algorithm=algo)
 
 
 class Group(ModelBase, BaseColumns):
