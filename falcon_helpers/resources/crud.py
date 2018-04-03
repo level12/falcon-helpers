@@ -22,10 +22,18 @@ class ListBase:
 
     def on_get(self, req, resp, **kwargs):
         result = self.get_objects(req, **kwargs)
-        schema = self.schema(many=True)
+
+        if result is None:
+            resp.status = falcon.HTTP_404
+            resp.media = {'error': 'Unable to find objects with that identifier'}
+            return
 
         resp.status = falcon.HTTP_200
-        resp.body = schema.dump(result)
+        resp.body = self.response_data(result, req, **kwargs)
+
+    def response_data(self, data, req, **kwargs):
+        schema = self.schema(many=True)
+        return schema.dump(data)
 
     def base_query(self, req, **kwargs):
         return self.session.query(self.db_cls)

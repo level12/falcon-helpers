@@ -44,6 +44,16 @@ class List(ListBase):
     db_cls = ModelTest
     schema = ModelSchema
 
+class ListSub(ListBase):
+    db_cls = ModelTest
+    schema = ModelSchema
+
+    def get_objects(self, req, *args, **kwargs):
+        if kwargs['objid'] == 'missing':
+            return None
+
+        if kwargs['objid'] == 'zero':
+            return []
 
 @pytest.fixture
 def app():
@@ -60,6 +70,7 @@ def app():
     app.add_route('/crud/{obj_id}', BasicCrud())
     app.add_route('/bad', BasicCrud())
     app.add_route('/list', List())
+    app.add_route('/list/{objid}/other', ListSub())
     return app
 
 
@@ -154,3 +165,17 @@ def test_listbase_get(client):
     assert len(resp.json) == 1
     assert resp.json[0]['id'] == m1.id
     assert resp.json[0]['name'] == m1.name
+
+
+def test_listbase_get_sends_404_for_subobj_with_none_respose(client):
+    resp = client.simulate_get(f'/list/missing/other')
+    assert resp.status_code == 404
+    assert 'error' in resp.json
+
+
+def test_listbase_get_sends_200_for_subobj_with_empty_respose(client):
+    m1 = ModelTest.testing_create()
+
+    resp = client.simulate_get(f'/list/zero/other')
+    assert resp.status_code == 200
+    assert resp.json == []
