@@ -154,6 +154,24 @@ def test_crud_base_delete_with_relationship(client):
     assert resp.json['errors'] == ['Unable to delete because the object is connected to other objects']
 
 
+def test_listbase_get_with_default_pagination(app):
+    m1 = ModelTest.testing_create()
+    m2 = ModelTest.testing_create()
+    session.add_all([m1, m2])
+    session.commit()
+
+    resource = List()
+    resource.default_page_size = None
+
+    app.add_route('/pagination', resource)
+    c = client(app)
+
+    resp = c.simulate_get(f'/pagination')
+    assert len(resp.json) == 2
+
+    resp = c.simulate_get(f'/pagination', query_string=f'pageSize=1')
+    assert len(resp.json) == 1
+
 def test_listbase_get(client):
     m1 = ModelTest.testing_create()
     m2 = ModelTest.testing_create()

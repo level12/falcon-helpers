@@ -20,6 +20,9 @@ class ListBase:
 
     default_order = None
 
+    # TODO: Deprecate the 50 page size limit and make this None
+    default_page_size = 50
+
     def on_get(self, req, resp, **kwargs):
         result = self.get_objects(req, **kwargs)
 
@@ -40,7 +43,12 @@ class ListBase:
 
     def pagination_hook(self, query, req, **kwargs):
         """Create a hook for pagination"""
-        size = int(req.params.get('pageSize', 50))
+        size = req.params.get('pageSize')
+
+        if not size:
+            size = self.default_page_size
+        else:
+            size = int(size)
 
         # -1 here is so that the page numbers start at 1
         page = int(req.params.get('page', 1)) - 1
@@ -48,7 +56,10 @@ class ListBase:
         if page < 0:
             page = 0
 
-        return query.limit(size).offset((page * size))
+        if size:
+            return query.limit(size).offset((page * size))
+        else:
+            return query
 
     def filter_hook(self, query, req, **kwargs):
         columns = self.db_cls.orm_column_names() & req.params.keys()
