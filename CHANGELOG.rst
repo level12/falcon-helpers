@@ -1,3 +1,9 @@
+0.11.4 - 2018-04-05
+###################
+
+* [FEAT] Allow specifying your own default page size for ListBase
+
+
 0.11.3 - 2018-03-31
 ###################
 
