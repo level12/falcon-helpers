@@ -79,121 +79,155 @@ def client(app):
     return falcon.testing.TestClient(app)
 
 
-def test_crud_base_get_404_with_no_object(client):
-    resp = client.simulate_get('/crud/1')
-    assert resp.status_code == 404
+class TestCrudBase:
+    def test_crud_base_get_404_with_no_object(self, client):
+        resp = client.simulate_get('/crud/1')
+        assert resp.status_code == 404
 
 
-def test_crud_base_get_500_with_misconfigured_route(client):
-    resp = client.simulate_get('/bad')
-    assert resp.status_code == 500
+    def test_crud_base_get_500_with_misconfigured_route(self, client):
+        resp = client.simulate_get('/bad')
+        assert resp.status_code == 500
 
 
-def test_crud_base_get_200_with_object(client):
-    m1 = ModelTest.testing_create()
-    session.add(m1)
-    session.commit()
-    resp = client.simulate_get(f'/crud/{m1.id}')
+    def test_crud_base_get_200_with_object(self, client):
+        m1 = ModelTest.testing_create()
+        session.add(m1)
+        session.commit()
+        resp = client.simulate_get(f'/crud/{m1.id}')
 
-    assert resp.status_code == 200
-    assert resp.json == {
-        'id': m1.id,
-        'name': m1.name,
-        'created_ts': m1.created_ts.replace(tzinfo=tz.utc).isoformat(),
-        'updated_ts': m1.updated_ts.replace(tzinfo=tz.utc).isoformat(),
-    }
-
-
-def test_crud_base_get_404_with_wrong_id(client):
-    m1 = ModelTest.testing_create()
-    session.add(m1)
-    session.commit()
-    resp = client.simulate_get(f'/crud/{m1.id + 1}')
-
-    assert resp.status_code == 404
+        assert resp.status_code == 200
+        assert resp.json == {
+            'id': m1.id,
+            'name': m1.name,
+            'created_ts': m1.created_ts.replace(tzinfo=tz.utc).isoformat(),
+            'updated_ts': m1.updated_ts.replace(tzinfo=tz.utc).isoformat(),
+        }
 
 
-def test_crud_base_post(client):
-    resp = client.simulate_post(
-        f'/crud/new',
-        json={
-            'name': 'thing'
-        })
+    def test_crud_base_get_404_with_wrong_id(self, client):
+        m1 = ModelTest.testing_create()
+        session.add(m1)
+        session.commit()
+        resp = client.simulate_get(f'/crud/{m1.id + 1}')
 
-    assert resp.status_code == 201
-    assert session.query(ModelTest).get(resp.json['id']).name == 'thing'
-    assert resp.json['name'] == 'thing'
+        assert resp.status_code == 404
 
 
-def test_crud_base_delete(client):
-    m1 = ModelTest.testing_create()
-    session.add(m1)
-    session.commit()
+    def test_crud_base_post(self, client):
+        resp = client.simulate_post(
+            f'/crud/new',
+            json={
+                'name': 'thing'
+            })
 
-    resp = client.simulate_delete(f'/crud/{m1.id}')
-
-    assert resp.status_code == 204
-    assert session.query(ModelTest).get(m1.id) == None
-
-def test_crud_base_delete_with_relationship(client):
-    m1 = ModelTest.testing_create()
-    session.add(m1)
-    session.flush()
-
-    mo1 = ModelOther.testing_create(test_id=m1.id)
-    session.add(mo1)
-    session.commit()
-
-    resp = client.simulate_delete(f'/crud/{m1.id}')
-
-    assert resp.status_code == 400
-    assert session.query(ModelTest).get(m1.id) == m1
-    assert session.query(ModelOther).get(mo1.id) == mo1
-
-    assert 'errors' in resp.json
-    assert resp.json['errors'] == ['Unable to delete because the object is connected to other objects']
+        assert resp.status_code == 201
+        assert session.query(ModelTest).get(resp.json['id']).name == 'thing'
+        assert resp.json['name'] == 'thing'
 
 
-def test_listbase_get_with_default_pagination(app):
-    m1 = ModelTest.testing_create()
-    m2 = ModelTest.testing_create()
-    session.add_all([m1, m2])
-    session.commit()
+    def test_crud_base_delete(self, client):
+        m1 = ModelTest.testing_create()
+        session.add(m1)
+        session.commit()
 
-    resource = List()
-    resource.default_page_size = None
+        resp = client.simulate_delete(f'/crud/{m1.id}')
 
-    app.add_route('/pagination', resource)
-    c = client(app)
+        assert resp.status_code == 204
+        assert session.query(ModelTest).get(m1.id) == None
 
-    resp = c.simulate_get(f'/pagination')
-    assert len(resp.json) == 2
+    def test_crud_base_delete_with_relationship(self, client):
+        m1 = ModelTest.testing_create()
+        session.add(m1)
+        session.flush()
 
-    resp = c.simulate_get(f'/pagination', query_string=f'pageSize=1')
-    assert len(resp.json) == 1
+        mo1 = ModelOther.testing_create(test_id=m1.id)
+        session.add(mo1)
+        session.commit()
 
-def test_listbase_get(client):
-    m1 = ModelTest.testing_create()
-    m2 = ModelTest.testing_create()
-    session.add_all([m1, m2])
-    session.commit()
+        resp = client.simulate_delete(f'/crud/{m1.id}')
 
-    resp = client.simulate_get(f'/list', query_string=f'name={m1.name}')
+        assert resp.status_code == 400
+        assert session.query(ModelTest).get(m1.id) == m1
+        assert session.query(ModelOther).get(mo1.id) == mo1
 
-    assert len(resp.json) == 1
-    assert resp.json[0]['id'] == m1.id
-    assert resp.json[0]['name'] == m1.name
+        assert 'errors' in resp.json
+        assert resp.json['errors'] == ['Unable to delete because the object is connected to other objects']
 
 
-def test_listbase_get_sends_404_for_subobj_with_none_respose(client):
-    resp = client.simulate_get(f'/list/missing/other')
-    assert resp.status_code == 404
-    assert 'error' in resp.json
+class TestListBase:
+
+    def test_default_filter_for_type(self):
+        lb = ListSub()
+        result = lb.filter_for_column(ModelTest.name, 'name')
+        assert result.left == ModelTest.name
+        assert result.right.value == 'name'
+        assert result.operator.__name__ == 'contains_op'
 
 
-def test_listbase_get_sends_200_for_subobj_with_empty_respose(client):
-    m1 = ModelTest.testing_create()
+    def test_default_filter_for_column(self):
+        lb = ListSub()
+        lb.column_filters = {
+            'name': ModelTest.name.__eq__
+        }
 
-    resp = client.simulate_get(f'/list/zero/other')
-    assert resp.status_code == 200
-    assert resp.json == []
+        result = lb.filter_for_column(ModelTest.name, 'name')
+        assert result.left == ModelTest.name
+        assert result.right.value == 'name'
+        assert result.operator.__name__ == 'eq'
+
+    def test_column_type_filter_creations(self):
+        lb = ListSub()
+        lb.type_filters = {
+            (sa.sql.sqltypes.String, lambda a, b: 'works')
+        }
+
+        # check the defaults
+        assert sa.sql.sqltypes.String in lb.column_type_filters
+
+        # check the overriding
+        assert lb.column_type_filters[sa.sql.sqltypes.String]('col', 'val') == 'works'
+
+    def test_listbase_get_with_default_pagination(self, app):
+        m1 = ModelTest.testing_create()
+        m2 = ModelTest.testing_create()
+        session.add_all([m1, m2])
+        session.commit()
+
+        resource = List()
+        resource.default_page_size = None
+
+        app.add_route('/pagination', resource)
+        c = client(app)
+
+        resp = c.simulate_get(f'/pagination')
+        assert len(resp.json) == 2
+
+        resp = c.simulate_get(f'/pagination', query_string=f'pageSize=1')
+        assert len(resp.json) == 1
+
+    def test_listbase_get(self, client):
+        m1 = ModelTest.testing_create()
+        m2 = ModelTest.testing_create()
+        session.add_all([m1, m2])
+        session.commit()
+
+        resp = client.simulate_get(f'/list', query_string=f'name={m1.name}')
+
+        assert len(resp.json) == 1
+        assert resp.json[0]['id'] == m1.id
+        assert resp.json[0]['name'] == m1.name
+
+
+    def test_listbase_get_sends_404_for_subobj_with_none_respose(self, client):
+        resp = client.simulate_get(f'/list/missing/other')
+        assert resp.status_code == 404
+        assert 'error' in resp.json
+
+
+    def test_listbase_get_sends_200_for_subobj_with_empty_respose(self, client):
+        m1 = ModelTest.testing_create()
+
+        resp = client.simulate_get(f'/list/zero/other')
+        assert resp.status_code == 200
+        assert resp.json == []

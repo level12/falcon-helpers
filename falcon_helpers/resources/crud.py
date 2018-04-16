@@ -14,6 +14,41 @@ class ListBase:
     Attributes:
         db_cls: Set this to a SQLAlchemy entity
         schema: Set this a Marshmallow schema
+
+    Filtering:
+
+        Filtering allows you to specify custom logic to limit query results while still using the
+        standard ListBase query builder.
+
+        It is possible to define custom type and custom column filters on names properties by using
+        the type_filters and the column_filters settings appropriately. `column_filters` will be
+        used first and then fallback to a `type_filter`. Basic type filters are defined for common
+        types where a sensible default is chosen. Note that `Integer` and `Float` will try to do the
+        conversion and error if bad data is sent.
+
+
+        To specify column filters, assign the `column_filters` class variable to a dictionary
+        containing the name of the key and the function(value) you want to call.
+
+            class MyEntityList(ListBase):
+                db_cls = MyEntity
+                schema = MyEntitySchema
+
+                column_filters = {
+                    'my_column': MyEntity.filters_for_string
+                }
+
+        To add additional type filters use the `type_filters` class variable.
+
+            class MyEntityList(ListBase):
+                db_cls = MyEntity
+                schema = MyEntitySchema
+
+                type_filters = {
+                    sqlalchemy.types.DateTime: MyEntity.filters_for_string
+                }
+
+
     """
     db_cls = None
     schema = None
@@ -22,6 +57,23 @@ class ListBase:
 
     # TODO: Deprecate the 50 page size limit and make this None
     default_page_size = 50
+
+    _default_type_filters = frozenset([
+        (sa.sql.sqltypes.String,  lambda col, val: col.contains(val)),
+        (sa.sql.sqltypes.Unicode, lambda col, val: col.contains(val)),
+        (sa.sql.sqltypes.Integer, lambda col, val: col == int(val)),
+        (sa.sql.sqltypes.Numeric, lambda col, val: col == float(val)),
+    ])
+    type_filters = None
+
+    column_filters = None
+
+    @property
+    def column_type_filters(self):
+        filters = dict()
+        filters.update({k: v for k, v in self._default_type_filters})
+        filters.update(self.type_filters or {})
+        return filters
 
     def on_get(self, req, resp, **kwargs):
         result = self.get_objects(req, **kwargs)
@@ -61,14 +113,28 @@ class ListBase:
         else:
             return query
 
+    def columns_for_params(self, params):
+        return {getattr(self.db_cls, x)
+                for x in self.db_cls.orm_column_names() & params.keys()}
+
+    def filter_for_column(self, column, value):
+        ## If there is a customer filter defined, use that
+        if self.column_filters and column.key in self.column_filters:
+            return self.column_filters[column.key](value)
+
+        ## If there is a customer filter defined, use that
+        filters = self.column_type_filters
+        if (type(column.property) == sa.orm.properties.ColumnProperty
+              and type(column.type) in filters):
+            return filters[type(column.type)](column, value)
+
+        return None
+
     def filter_hook(self, query, req, **kwargs):
-        columns = self.db_cls.orm_column_names() & req.params.keys()
+        filters = {col.key: self.filter_for_column(col, req.params[col.key])
+                   for col in self.columns_for_params(req.params)}
 
-        query = query.filter(
-            *[getattr(self.db_cls, x).ilike(req.get_param(x)) for x in columns]
-        )
-
-        return query
+        return query.filter(*[x for x in filters.values() if x is not None])
 
     def order_hook(self, query, req, **kwargs):
         request_order = req.params.get('sort_by', [])
