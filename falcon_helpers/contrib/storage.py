@@ -135,7 +135,7 @@ class LocalFileStore:
     def save(self, filename, fp, path=None):
         unique_name = self.uidgen()
 
-        parent = self.path.joinpath(path)
+        parent = self.path.joinpath(path) if path else self.path
 
         parent.mkdir(parents=True, exist_ok=True)
         final_path = parent.joinpath(str(unique_name))
