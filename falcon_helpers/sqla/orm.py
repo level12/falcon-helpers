@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import as_declarative
 
 from falcon_helpers.sqla.core import utcnow
 from falcon_helpers.sqla.utils import random_data_for_type
+from falcon_helpers.sqla.db import session
 
 
 convention = {
@@ -35,7 +36,7 @@ class Testable:
     testing_random_nulls = True
 
     @classmethod
-    def testing_create(cls, **kwargs):
+    def testing_create(cls, _commit=True, **kwargs):
         """Create an object for testing with default data appropriate for the
         field type
 
@@ -71,9 +72,15 @@ class Testable:
             except ValueError:
                 pass
 
-        return cls(**kwargs)
+        obj = cls(**kwargs)
+
+        if _commit:
+            session.add(obj)
+            session.commit()
+
+        return obj
 
 
 @as_declarative(metadata=metadata)
 class ModelBase(Testable, BaseFunctions):
-    pass
+    query = session.query_property()

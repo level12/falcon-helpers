@@ -3,15 +3,16 @@ from sqlalchemy.orm import (
     sessionmaker,
 )
 
-from falcon_helpers.sqla.db import session
+import falcon_helpers.sqla.db as db
 
 
 class SQLAlchemySessionMiddleware:
     def __init__(self, session):
-        self.session = session
+        # self.session = session
+        pass
 
     def process_resource(self, req, resp, resource, params):
-        resource.session = self.session()
+        resource.session = db.session
 
     def process_response(self, req, resp, resource, req_succeeded):
         if not hasattr(resource, 'session'):
@@ -19,9 +20,9 @@ class SQLAlchemySessionMiddleware:
 
         try:
             if not req_succeeded:
-                resource.session.rollback()
+                db.session.rollback()
             else:
-                resource.session.commit()
+                db.session.commit()
         except Exception as e:
-            resource.session.remove()
+            db.session.remove()
             raise
