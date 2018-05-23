@@ -1,3 +1,17 @@
+0.13.0 - 2018-05-22
+###################
+
+* [BREAK] SQLAlchemy Session is now a global (9d5d220_)
+* [FEAT] Implement fetching from storage environments (7f7fc01_)
+* [NEW] Add a basic Mapping type for Configuration objects (1884577_)
+* [BUG] Allow None for Storage Paths (e3b625d_)
+
+.. _9d5d220: https://gitlab.com/skosh/falcon-helpers/commit/9d5d220
+.. _7f7fc01: https://gitlab.com/skosh/falcon-helpers/commit/7f7fc01
+.. _1884577: https://gitlab.com/skosh/falcon-helpers/commit/1884577
+.. _e3b625d: https://gitlab.com/skosh/falcon-helpers/commit/e3b625d
+
+
 0.12.0 - 2018-04-15
 ###################
 
