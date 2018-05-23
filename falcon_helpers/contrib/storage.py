@@ -1,15 +1,15 @@
 import io
+import mimetypes
 import os.path
 import pathlib
-import mimetypes
+import uuid
 
 try:
+    # When using S3 you need to install boto
     import botocore
     import boto3
 except ImportError:
     pass
-
-import uuid
 
 import falcon
 
@@ -69,6 +69,17 @@ class S3FileStore:
         resp.status = falcon.HTTP_303
         resp.location = self.make_download_url(doc)
 
+    def _fetch(self, path):
+        """Returns the S3 object from the service"""
+        return self.connection.Object(self.bucket, path.lstrip('/')).get()
+
+    def fetch_fp(self, doc, opener=None):
+        opener = opener if opener else self._fetch
+
+        resp = opener(doc.path)
+        return io.BytesIO(resp['Body'].read())
+
+    # TODO: this should take a Document not a path
     def remove(self, path):
         obj = self.connection.Object(self.bucket, path.lstrip('/'))
         resp = obj.delete()
@@ -164,3 +175,13 @@ class LocalFileStore:
         resp.content_type = content_type
 
         resp.status = falcon.HTTP_200
+
+    def fetch_fp(self, doc: Document, opener=None):
+        """Yield a file into a file-like object
+
+        You can pass `opener` to this function to change the way the file is opened. This uses the
+        opener kwarg for open.
+        """
+        return open(pathlib.Path(doc.path),
+                    mode='rb',
+                    opener=opener)
