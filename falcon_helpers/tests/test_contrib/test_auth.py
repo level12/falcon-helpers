@@ -1,10 +1,10 @@
 import jwt
-import falcon_helpers as fh
+import falcon_helpers.contrib.auth as auth
 
 
 def test_generate_auth_token():
     # we don't need to hit the db for this test so don't commit it
-    u1 = fh.contrib.auth.User.testing_create(_commit=False)
+    u1 = auth.User.testing_create(_commit=False)
 
     token = u1.generate_auth_token('aud', 'secret')
     result = jwt.decode(token, 'secret', algorithm='HS256', audience='aud')
