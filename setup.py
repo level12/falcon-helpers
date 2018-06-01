@@ -29,7 +29,8 @@ setup(
         'wrapt',
     ],
     extras_require={
-        's3': ['boto3']
+        's3': ['boto3'],
+        'cli': ['click']
     },
     zip_safe=True,
     license='BSD',
