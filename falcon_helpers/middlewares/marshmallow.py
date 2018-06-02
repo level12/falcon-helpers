@@ -1,16 +1,26 @@
+import logging
 import falcon
 import ujson
 from marshmallow.schema import MarshalResult
+
+log = logging.getLogger(__name__)
 
 
 class MarshmallowMiddleware:
 
     def _default_load(self, data, req, resource, params):
         schema = resource.schema()
-        return schema.load(data, session=resource.session)
+
+        # Try to get an instance from the `get_object` method on the resource so we can populate
+        # already existing instances
+        if hasattr(resource, 'get_object'):
+            instance = resource.get_object(req=req, **params)
+        else:
+            instance = None
+
+        return schema.load(data, session=resource.session, instance=instance)
 
     def process_resource(self, req, resp, resource, params):
-
         should_parse =  (
             # Veriy that it is safe to parse this resource
             req.method in ('POST', 'PUT'),
@@ -29,11 +39,11 @@ class MarshmallowMiddleware:
             req.context['_marshalled'] = False
             return
 
-        stream = req.context['marshalled_stream'] = req.bounded_stream.read()
-        data = ujson.loads(stream)
+        data = req.media
+        req.context['marshalled_stream'] = ujson.dumps(data)
 
         if req.method == 'PUT':
-            data['id'] = params['obj_id']
+            data['id'] = params.get(getattr(resource, 'default_param_name', 'obj_id'))
 
         loaded = (self._default_load(data, req, resource, params)
                   if not hasattr(resource, 'schema_loader')
