@@ -1,3 +1,11 @@
+0.14.0 - 2018-06-01
+###################
+
+* [BREAK] Remove Statics Middleware
+* [NEW] Add a simple Sentry Plugin
+* [NEW] Create a server CLI
+
+
 0.13.0 - 2018-05-22
 ###################
 
