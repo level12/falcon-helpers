@@ -28,8 +28,15 @@ setup(
         'ujson',
         'wrapt',
     ],
+
     extras_require={
-        's3': ['boto3']
+        's3': ['boto3'],
+        'cli': ['click'],
+        'dev': [
+            'click',
+            'pytest',
+            'raven',
+        ]
     },
     zip_safe=True,
     license='BSD',
