@@ -27,6 +27,7 @@ class ModelTest(Base, BaseColumns, BaseFunctions, Testable):
     __tablename__ = 'mtest'
 
     name = sa.Column(sa.Unicode, nullable=False)
+    uni = sa.Column(sa.Unicode, unique=True)
     other = sa.orm.relationship("ModelOther")
 
 
@@ -54,6 +55,7 @@ class ListSub(ListBase):
 
         if kwargs['objid'] == 'zero':
             return []
+
 
 @pytest.fixture
 def app():
@@ -84,26 +86,36 @@ class TestCrudBase:
         resp = client.simulate_get('/crud/1')
         assert resp.status_code == 404
 
-
     def test_crud_base_get_500_with_misconfigured_route(self, client):
         resp = client.simulate_get('/bad')
         assert resp.status_code == 500
 
-
     def test_crud_base_get_200_with_object(self, client):
         m1 = ModelTest.testing_create()
-        session.add(m1)
-        session.commit()
         resp = client.simulate_get(f'/crud/{m1.id}')
 
         assert resp.status_code == 200
         assert resp.json == {
             'id': m1.id,
             'name': m1.name,
+            'uni': m1.uni,
             'created_ts': m1.created_ts.replace(tzinfo=tz.utc).isoformat(),
             'updated_ts': m1.updated_ts.replace(tzinfo=tz.utc).isoformat(),
         }
 
+    def test_crud_base_get_404_with_bad_primary_key(self, client):
+        assert client.simulate_get(f'/crud/abs').status_code == 404
+
+    def test_crud_base_post_duplicate_object(self, client):
+        ModelTest.testing_create(uni='test')
+        resp = client.simulate_post(
+            f'/crud/new',
+            json={
+                'uni': 'test',
+                'name': 'thing'
+            })
+
+        assert resp.status_code == 409
 
     def test_crud_base_get_404_with_wrong_id(self, client):
         m1 = ModelTest.testing_create()
@@ -112,7 +124,6 @@ class TestCrudBase:
         resp = client.simulate_get(f'/crud/{m1.id + 1}')
 
         assert resp.status_code == 404
-
 
     def test_crud_base_post(self, client):
         resp = client.simulate_post(
@@ -125,7 +136,6 @@ class TestCrudBase:
         assert session.query(ModelTest).get(resp.json['id']).name == 'thing'
         assert resp.json['name'] == 'thing'
 
-
     def test_crud_base_delete(self, client):
         m1 = ModelTest.testing_create()
         session.add(m1)
@@ -134,7 +144,7 @@ class TestCrudBase:
         resp = client.simulate_delete(f'/crud/{m1.id}')
 
         assert resp.status_code == 204
-        assert session.query(ModelTest).get(m1.id) == None
+        assert session.query(ModelTest).get(m1.id) is None
 
     def test_crud_base_delete_with_relationship(self, client):
         m1 = ModelTest.testing_create()
@@ -152,7 +162,9 @@ class TestCrudBase:
         assert session.query(ModelOther).get(mo1.id) == mo1
 
         assert 'errors' in resp.json
-        assert resp.json['errors'] == ['Unable to delete because the object is connected to other objects']
+        assert resp.json['errors'] == [
+            'Unable to delete because the object is connected to other objects'
+        ]
 
 
 class TestListBase:
@@ -163,7 +175,6 @@ class TestListBase:
         assert result.left == ModelTest.name
         assert result.right.value == 'name'
         assert result.operator.__name__ == 'contains_op'
-
 
     def test_default_filter_for_column(self):
         lb = ListSub()
@@ -218,15 +229,13 @@ class TestListBase:
         assert resp.json[0]['id'] == m1.id
         assert resp.json[0]['name'] == m1.name
 
-
     def test_listbase_get_sends_404_for_subobj_with_none_respose(self, client):
         resp = client.simulate_get(f'/list/missing/other')
         assert resp.status_code == 404
         assert 'error' in resp.json
 
-
     def test_listbase_get_sends_200_for_subobj_with_empty_respose(self, client):
-        m1 = ModelTest.testing_create()
+        ModelTest.testing_create()
 
         resp = client.simulate_get(f'/list/zero/other')
         assert resp.status_code == 200

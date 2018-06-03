@@ -1,17 +1,29 @@
+import logging
 import falcon
 import ujson
 from marshmallow.schema import MarshalResult
+
+import falcon_helpers.sqla.db as db
+
+log = logging.getLogger(__name__)
 
 
 class MarshmallowMiddleware:
 
     def _default_load(self, data, req, resource, params):
         schema = resource.schema()
-        return schema.load(data, session=resource.session)
+
+        # Try to get an instance from the `get_object` method on the resource so we can populate
+        # already existing instances
+        if hasattr(resource, 'get_object'):
+            instance = resource.get_object(req=req, **params)
+        else:
+            instance = None
+
+        return schema.load(data, session=db.session, instance=instance)
 
     def process_resource(self, req, resp, resource, params):
-
-        should_parse =  (
+        should_parse = (
             # Veriy that it is safe to parse this resource
             req.method in ('POST', 'PUT'),
             # If there is no data in the body, there is nothing to look at
@@ -29,11 +41,8 @@ class MarshmallowMiddleware:
             req.context['_marshalled'] = False
             return
 
-        stream = req.context['marshalled_stream'] = req.bounded_stream.read()
-        data = ujson.loads(stream)
-
-        if req.method == 'PUT':
-            data['id'] = params['obj_id']
+        req.context['marshalled_stream'] = req.stream.read()
+        data = req._media = ujson.loads(req.context['marshalled_stream'])
 
         loaded = (self._default_load(data, req, resource, params)
                   if not hasattr(resource, 'schema_loader')

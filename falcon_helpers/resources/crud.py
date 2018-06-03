@@ -1,8 +1,12 @@
+import logging
 import ujson
 import sqlalchemy as sa
 import falcon
 
 from ..utils import flatten
+
+
+log = logging.getLogger(__name__)
 
 
 class ListBase:
@@ -184,9 +188,21 @@ class CrudBase:
     def get_object(self, req, **kwargs):
         try:
             obj_id = kwargs[self.default_param_name]
-            return self.session.query(self.db_cls).get(obj_id)
         except KeyError:
+            log.error(
+                f'The resource {self.__class__.__name__} route is not using the correct parameter '
+                f'name for the object identifier. Expecting `{self.default_param_name}` but it was '
+                f'not in the matched route parameters. Add a `default_param_name` to the resource '
+                f'which matches the route variable. Found these items: {",".join(kwargs.keys())}.'
+            )
             raise falcon.HTTPInternalServerError("Misconfigured route")
+
+        try:
+            return self.session.query(self.db_cls).get(obj_id)
+        except sa.exc.DataError as e:
+            self.session.rollback()
+            log.warning(f'Bad primary key given to  {self.__class__.__name__}')
+            return None
 
     def on_get(self, req, resp, **kwargs):
         result = self.get_object(req, **kwargs)
@@ -198,7 +214,6 @@ class CrudBase:
         resp.body = schema.dump(result)
         resp.status = falcon.HTTP_200
 
-
     def on_put(self, req, resp, **kwargs):
         self.session.add(req.context['dto'].data)
         self.session.flush()
@@ -206,14 +221,21 @@ class CrudBase:
         resp.status = falcon.HTTP_200
         resp.body = self.schema().dump(req.context['dto'].data)
 
-
     def on_post(self, req, resp, **kwargs):
         self.session.add(req.context['dto'].data)
-        self.session.flush()
+
+        try:
+            self.session.flush()
+        except sa.exc.IntegrityError as e:
+            self.session.rollback()
+            resp.status = falcon.HTTP_409
+            resp.media = {
+                'errors': ['An object with that identifier already exists.']
+            }
+            return
 
         resp.status = falcon.HTTP_201
-        resp.body = self.schema().dump(req.context['dto'].data)
-
+        resp.media = self.schema().dump(req.context['dto'].data).data
 
     def on_delete(self, req, resp, **kwargs):
         try:
