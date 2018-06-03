@@ -27,6 +27,7 @@ class ModelTest(Base, BaseColumns, BaseFunctions, Testable):
     __tablename__ = 'mtest'
 
     name = sa.Column(sa.Unicode, nullable=False)
+    uni = sa.Column(sa.Unicode, unique=True)
     other = sa.orm.relationship("ModelOther")
 
 
@@ -85,28 +86,36 @@ class TestCrudBase:
         resp = client.simulate_get('/crud/1')
         assert resp.status_code == 404
 
-
     def test_crud_base_get_500_with_misconfigured_route(self, client):
         resp = client.simulate_get('/bad')
         assert resp.status_code == 500
 
-
     def test_crud_base_get_200_with_object(self, client):
         m1 = ModelTest.testing_create()
-        session.add(m1)
-        session.commit()
         resp = client.simulate_get(f'/crud/{m1.id}')
 
         assert resp.status_code == 200
         assert resp.json == {
             'id': m1.id,
             'name': m1.name,
+            'uni': m1.uni,
             'created_ts': m1.created_ts.replace(tzinfo=tz.utc).isoformat(),
             'updated_ts': m1.updated_ts.replace(tzinfo=tz.utc).isoformat(),
         }
 
     def test_crud_base_get_404_with_bad_primary_key(self, client):
         assert client.simulate_get(f'/crud/abs').status_code == 404
+
+    def test_crud_base_post_duplicate_object(self, client):
+        ModelTest.testing_create(uni='test')
+        resp = client.simulate_post(
+            f'/crud/new',
+            json={
+                'uni': 'test',
+                'name': 'thing'
+            })
+
+        assert resp.status_code == 409
 
     def test_crud_base_get_404_with_wrong_id(self, client):
         m1 = ModelTest.testing_create()
