@@ -1,3 +1,11 @@
+0.15.0 - 2018-06-02
+###################
+
+* [FEAT] Add Support for easier PUT updates (31d6175_)
+
+.. _31d6175: https://gitlab.com/skosh/falcon-helpers/commit/31d6175
+
+
 0.14.0 - 2018-06-01
 ###################
 
