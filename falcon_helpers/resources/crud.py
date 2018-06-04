@@ -122,22 +122,29 @@ class ListBase:
                 for x in self.db_cls.orm_column_names() & params.keys()}
 
     def filter_for_column(self, column, value):
-        ## If there is a customer filter defined, use that
-        if self.column_filters and column.key in self.column_filters:
-            return self.column_filters[column.key](value)
-
-        ## If there is a customer filter defined, use that
         filters = self.column_type_filters
         if (type(column.property) == sa.orm.properties.ColumnProperty
-              and type(column.type) in filters):
+                and type(column.type) in filters):
             return filters[type(column.type)](column, value)
 
         return None
+
+    def filter_for_param(self, key, value):
+        try:
+            f = self.column_filters[key]
+        except KeyError:
+            return None
+
+        return f(value)
 
     def filter_hook(self, query, req, **kwargs):
         filters = {col.key: self.filter_for_column(col, req.params[col.key])
                    for col in self.columns_for_params(req.params)}
 
+        # Custom column filters
+        if self.column_filters:
+            filters.update({key: self.filter_for_param(key, value)
+                            for key, value in req.params.items()})
         return query.filter(*[x for x in filters.values() if x is not None])
 
     def order_hook(self, query, req, **kwargs):
@@ -149,7 +156,7 @@ class ListBase:
             request_order = [request_order]
 
         request_order = list(flatten([x.split(';') for x in request_order]))
-        request_order = [sa.desc(x[1:]) if x.startswith('-') else sa.asc(x) for x in request_order ]
+        request_order = [sa.desc(x[1:]) if x.startswith('-') else sa.asc(x) for x in request_order]
 
         default_order = request_order or self.default_order or self.db_cls.__mapper__.primary_key
         return query.order_by(*default_order)

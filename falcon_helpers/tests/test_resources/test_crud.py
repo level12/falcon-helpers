@@ -182,9 +182,9 @@ class TestListBase:
             'name': ModelTest.name.__eq__
         }
 
-        result = lb.filter_for_column(ModelTest.name, 'name')
+        result = lb.filter_for_param('name', 'val')
         assert result.left == ModelTest.name
-        assert result.right.value == 'name'
+        assert result.right.value == 'val'
         assert result.operator.__name__ == 'eq'
 
     def test_column_type_filter_creations(self):
