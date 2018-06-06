@@ -1,3 +1,9 @@
+0.15.1 - 2018-06-06
+###################
+
+* [FEAT] Allow column_filters to use non-entity columns
+
+
 0.15.0 - 2018-06-02
 ###################
 
