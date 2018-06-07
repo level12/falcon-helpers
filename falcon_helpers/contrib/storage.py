@@ -8,6 +8,7 @@ try:
     # When using S3 you need to install boto
     import botocore
     import boto3
+    from botocore.client import Config
 except ImportError:
     pass
 
@@ -32,7 +33,7 @@ class S3FileStore:
 
     def __init__(self, bucket, prefix='/', uidgen=uuid.uuid4,
                  default_content_type='application/octet-stream',
-                 endpoint=None
+                 endpoint=None, s3_config=None,
                  ):
         if not prefix.startswith('/'):
             raise AssertionError('S3ImageStore requires an absolute path.')
@@ -46,6 +47,7 @@ class S3FileStore:
         self.uidgen = uidgen
         self.default_content_type = default_content_type
         self.endpoint = endpoint
+        self.s3_config = s3_config or Config(signature_version='s3v4')
 
     @property
     def connection(self):
@@ -53,7 +55,7 @@ class S3FileStore:
 
     @property
     def client(self):
-        return boto3.client('s3', endpoint_url=self.endpoint)
+        return boto3.client('s3', endpoint_url=self.endpoint, config=self.s3_config)
 
     def make_download_url(self, doc, expires_in=60):
         return self.client.generate_presigned_url(
