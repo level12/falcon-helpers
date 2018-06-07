@@ -1,3 +1,10 @@
+0.15.2 - 2018-06-06
+###################
+
+* [FEAT]  Support passing S3 configuration to storages
+* [BREAK] Default to using V4 of the AWS presigned key
+
+
 0.15.1 - 2018-06-06
 ###################
 
