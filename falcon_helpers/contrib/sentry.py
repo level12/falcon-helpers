@@ -33,12 +33,18 @@ class Sentry:
                     sentry.captureException(e)
                     pass
     """
-    def __init__(self, dsn=None):
-        self.set_dsn(dsn)
 
-    def set_dsn(self, dsn):
-        self.dsn = dsn
+    @property
+    def dsn(self):
+        return self._dsn
+
+    @dsn.setter
+    def dsn(self, dsn):
+        self._dsn = dsn
         self.client = raven.Client(dsn)
+
+    def __init__(self, dsn=None):
+        self.dsn = dsn
 
     def register(self, app):
         app.add_error_handler(Exception, self.handle)

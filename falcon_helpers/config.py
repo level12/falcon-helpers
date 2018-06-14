@@ -27,13 +27,6 @@ class Config(dict):
             raise ConfigurationError(f'Unable to find configuration value for key {item}')
 
     @classmethod
-    def _parsed_to_dict(cls, config):
-        return cls([
-            (s, cls(config.items(s)))
-            for s in config.sections()
-        ])
-
-    @classmethod
     def from_inis(cls, *fpaths):
         """Read the configuration for ini files
 
@@ -43,5 +36,7 @@ class Config(dict):
         config = configparser.ConfigParser()
         config.read(fpaths)
 
-        return cls._parsed_to_dict(config)
-
+        return cls([
+            (s, cls(config.items(s)))
+            for s in config.sections()
+        ])
