@@ -1,3 +1,4 @@
+import logging
 import io
 import mimetypes
 import os.path
@@ -13,6 +14,8 @@ except ImportError:
     pass
 
 import falcon
+
+log = logging.getLogger(__name__)
 
 
 class Document:
@@ -75,8 +78,15 @@ class S3FileStore:
         """Returns the S3 object from the service"""
         return self.connection.Object(self.bucket, path.lstrip('/')).get()
 
-    def fetch_fp(self, doc, opener=None):
+    # TODO: This needs to take a mode
+    def fetch_fp(self, doc, opener=None, mode=None):
         opener = opener if opener else self._fetch
+
+        if mode:
+            log.warning(
+                f'Setting mode when fetching a file pointer is not supported for ',
+                f'{self.__class__.__name__}'
+            )
 
         resp = opener(doc.path)
         return io.BytesIO(resp['Body'].read())
@@ -178,12 +188,12 @@ class LocalFileStore:
 
         resp.status = falcon.HTTP_200
 
-    def fetch_fp(self, doc: Document, opener=None):
+    def fetch_fp(self, doc: Document, opener=None, mode='rb'):
         """Yield a file into a file-like object
 
         You can pass `opener` to this function to change the way the file is opened. This uses the
         opener kwarg for open.
         """
         return open(pathlib.Path(doc.path),
-                    mode='rb',
+                    mode=mode,
                     opener=opener)
