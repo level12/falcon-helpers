@@ -1,3 +1,9 @@
+0.15.3 - 2018-06-18
+###################
+
+* [FEAT] Fetching a file pointer in storage allows you to set the mode.
+
+
 0.15.2 - 2018-06-06
 ###################
 
