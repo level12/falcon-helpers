@@ -2,12 +2,12 @@ import falcon
 import raven
 
 
-class Sentry:
+class SentryPlugin:
     """Simple Sentry integration plugin
 
         config = {'sentry_dsn': 'some@sentry.io'}
         app = falcon.API()
-        sentry = Sentry(config['sentry_dsn'])
+        sentry = SentryPlugin(config['sentry_dsn'])
         sentry.register_app(sentry)
 
     You can get access to this globally so that you can capture exceptions without it having to get
