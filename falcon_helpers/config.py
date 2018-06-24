@@ -8,7 +8,7 @@ class ConfigurationError(Exception):
 class Config(dict):
     """A basic Configuration type
 
-    This configuration class can use subscriptable syntax `['item']` or dotted syntaxt `config.item`
+    This configuration class can use subscriptable syntax `['item']` or dotted syntax `config.item`
     """
 
     def __getattr__(self, item):
