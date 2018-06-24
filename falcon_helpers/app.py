@@ -1,13 +1,38 @@
 import falcon
 
 from falcon_helpers.config import Config
+from falcon_helpers.middlewares import multi as multimw
 
 
 class API(falcon.API):
     __slots__ = (
         'config',
         'plugins',
+        '_dynmw',
+        'enable_dynamic_mw',
     )
+
+    def __init__(self, middleware=None, enable_dynamic_mw=True, independent_middleware=True,
+                 **kwargs):
+
+        if enable_dynamic_mw:
+            if independent_middleware is False:
+                raise RuntimeError(
+                    f'Independent middleware must be enabled to use dynamic middleware.'
+                )
+
+            self._dynmw = multimw.MultiMiddleware(middleware)
+            kwargs['middleware'] = [self._dynmw]
+            kwargs['independent_middleware'] = True
+        else:
+            kwargs['middleware'] = middleware
+
+        self.plugins = {}
+
+        super().__init__(**kwargs)
+
+    def add_middleware(self, mw):
+        self._dynmw.add_middleware(mw)
 
     @classmethod
     def from_inis(cls, *paths, api_kwargs=None):
