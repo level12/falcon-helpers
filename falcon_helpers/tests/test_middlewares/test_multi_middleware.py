@@ -1,5 +1,3 @@
-import mock
-
 import falcon.testing
 
 from falcon_helpers.middlewares.multi import MultiMiddleware
