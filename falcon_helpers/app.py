@@ -15,12 +15,13 @@ class API(falcon.API):
     def __init__(self, middleware=None, enable_dynamic_mw=True, independent_middleware=True,
                  **kwargs):
 
-        if enable_dynamic_mw:
-            if independent_middleware is False:
-                raise RuntimeError(
-                    f'Independent middleware must be enabled to use dynamic middleware.'
-                )
-
+        if enable_dynamic_mw and not independent_middleware:
+            raise RuntimeError(
+                f'Independent middleware must be enabled to use dynamic middleware. Either turn '
+                'off dynamic middleware (enable_dynamic_mw=False) or enable independent middleware '
+                '(independent_middleware=True).'
+            )
+        elif enable_dynamic_mw:
             self._dynmw = multimw.MultiMiddleware(middleware)
             kwargs['middleware'] = [self._dynmw]
             kwargs['independent_middleware'] = True
