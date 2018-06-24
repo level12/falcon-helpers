@@ -15,8 +15,6 @@ class MockResource(falcon.testing.SimpleTestResource):
 
 @pytest.fixture()
 def client():
-    engine = sa.create_engine('sqlite://')
-    db.session.configure(bind=engine)
     api = falcon.API(middleware=[
         SQLAlchemySessionMiddleware()
     ])
