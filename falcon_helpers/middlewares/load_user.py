@@ -1,5 +1,7 @@
 import sqlalchemy as sa
 
+import falcon_helpers.sqla.db as db
+
 
 class LoadUserMiddleware:
     """Load a user from the database during the request cycle using sqlalchemy
@@ -16,10 +18,10 @@ class LoadUserMiddleware:
 
     """
 
-    def __init__(self, session, user_cls, get_id=None):
-        self.session = session
+    def __init__(self, user_cls, get_id=None, session=None):
         self.user_cls = user_cls
         self.get_id = get_id or self._get_id
+        self.session = session or db.session
 
     @staticmethod
     def _get_id(req):

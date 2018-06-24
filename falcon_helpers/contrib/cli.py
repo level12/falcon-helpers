@@ -2,6 +2,8 @@ from wsgiref.simple_server import make_server
 import logging
 import click
 
+from falcon_helpers.contrib.wsgi import CustomLoggingWSGIRequestHandler
+
 log = logging.getLogger(__name__)
 
 
@@ -37,5 +39,5 @@ def start(ctx, host, port):
 
     log.info(f'Starting the dev server on {host}:{port} this should not be used in production...')
 
-    httpd = make_server(host, port, app)
+    httpd = make_server(host, port, app, handler_class=CustomLoggingWSGIRequestHandler)
     httpd.serve_forever()

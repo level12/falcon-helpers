@@ -9,12 +9,10 @@ import marshmallow_sqlalchemy as ms
 from falcon_helpers.resources.crud import CrudBase, ListBase
 from falcon_helpers.middlewares.sqla import SQLAlchemySessionMiddleware
 from falcon_helpers.middlewares.marshmallow import MarshmallowMiddleware
-from falcon_helpers.sqla.orm import BaseColumns, BaseFunctions, Testable, metadata
+from falcon_helpers.sqla.orm import BaseColumns, BaseFunctions, Testable
 from falcon_helpers.sqla.db import session
 
-
-engine = sa.create_engine('sqlite://')
-Base = sa.ext.declarative.declarative_base(bind=engine)
+from falcon_helpers.tests.fixtures import Base
 
 
 class ModelOther(Base, BaseColumns, Testable):
