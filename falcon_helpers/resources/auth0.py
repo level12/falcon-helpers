@@ -7,15 +7,16 @@ from ..middlewares.jinja2 import Jinja2Response
 class LoginFormResource:
     auth_required = False
 
-    def __init__(self, client_url, client_id, callback_uri):
+    def __init__(self, client_url, client_id, callback_uri, template_path='auth/login.html'):
         self.client_url = client_url
         self.client_id = client_id
         self.callback_uri = callback_uri
+        self.template_path = template_path
 
     # Load form
     def on_get(self, req, resp):
         resp.context['template'] = Jinja2Response(
-            'auth/login.html',
+            self.template_path,
             auth0_config={
                 'client_url': self.client_url,
                 'client_id': self.client_id,
@@ -38,6 +39,12 @@ class LoginCallbackResource:
         self.redirect_uri = redirect_uri
 
         self.cookie_domain = cookie_domain
+
+        if not isinstance(secure_cookie, bool):
+            raise RuntimeError(
+                f'secure_cookie must be a literal True or False, got {secure_cookie}.'
+            )
+
         self.secure_cookie = secure_cookie
         self.cookie_name = cookie_name
         self.cookie_max_age = cookie_max_age
