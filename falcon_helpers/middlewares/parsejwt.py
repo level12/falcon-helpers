@@ -1,12 +1,10 @@
-import falcon
 import jwt
 
-def _default_failed(exception):
-    raise falcon.HTTPUnauthorized()
+import falcon_helpers.config as config
 
 
-class ConfigurationError(Exception):
-    pass
+def _default_failed(exception, req, resp):
+    return None
 
 
 class ParseJWTMiddleware:
@@ -49,11 +47,10 @@ class ParseJWTMiddleware:
                  when_fails=_default_failed):
 
         if cookie_name and header_name:
-            raise ConfigurationError('Can\'t pull the token from both a header'
-                                     ' and a cookie')
+            raise config.ConfigurationError('Can\'t pull the token from both a header and a cookie')
 
         if not cookie_name and not header_name:
-            cookie_name = 'X-AuthToken'
+            raise config.ConfigurationError('You must specify a header_name or a cookie_name')
 
         self.audience = audience
         self.secret = secret
@@ -61,10 +58,10 @@ class ParseJWTMiddleware:
         self.cookie_name = cookie_name
         self.header_name = header_name
         self.failed_action = when_fails
+        self.context_key = context_key
 
-        if (self.pubkey is not None
-            and not self.pubkey.startswith('ssh-rsa')):
-            raise ConfigurationError(
+        if self.pubkey is not None and not self.pubkey.startswith('ssh-rsa'):
+            raise config.ConfigurationError(
                 'A public key for RS256 encoding must be in PEM Format')
 
     def verify_request(self, token):
@@ -78,17 +75,21 @@ class ParseJWTMiddleware:
                                 else ('secret key', self.secret))
 
         if verify_with is None:
-            raise ConfigurationError('You must pass the correct verification'
-                                     f' type for this algorithm.'
-                                     f' {header["alg"]} requires a {type_}.')
+            raise config.ConfigurationError(
+                'You must pass the correct verification type for this algorithm. '
+                f'{header["alg"]} requires a {type_}.'
+            )
 
         return jwt.decode(token, verify_with, audience=self.audience)
 
-
     def process_request(self, req, resp):
-        token = req.cookies.get(self.cookie_name, False)
+        if self.cookie_name:
+            token = req.cookies.get(self.cookie_name, False)
+        elif self.header_name:
+            # Header names are uppercase in WSGI environments
+            token = req.headers.get(self.header_name.upper(), False)
 
         try:
-            req.context['auth_token_contents'] = self.verify_request(token)
+            req.context[self.context_key] = self.verify_request(token)
         except Exception as e:
             return self.failed_action(e, req, resp)
