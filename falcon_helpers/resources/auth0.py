@@ -1,7 +1,16 @@
+import logging
+
 import falcon
 import requests
 
 from ..middlewares.jinja2 import Jinja2Response
+
+
+log = logging.getLogger(__name__)
+
+
+def _default_failed(req, resp, error, message, **kwargs):
+    raise falcon.HTTPTemporaryRedirect('/')
 
 
 class LoginFormResource:
@@ -30,13 +39,14 @@ class LoginCallbackResource:
     def __init__(self, client_url, client_id, client_secret, callback_uri,
                  cookie_domain, secure_cookie, cookie_name='X-AuthToken',
                  cookie_max_age=(24 * 60 * 60), cookie_path='/',
-                 redirect_uri='/dashboard', after_login=None
+                 redirect_uri='/dashboard', after_login=None, when_fails=_default_failed,
                  ):
         self.client_url = client_url
         self.client_id = client_id
         self.client_secret = client_secret
         self.callback_uri = callback_uri
         self.redirect_uri = redirect_uri
+        self.failed_action = when_fails
 
         self.cookie_domain = cookie_domain
 
@@ -52,10 +62,38 @@ class LoginCallbackResource:
         self.after_login = after_login or (lambda data, req, resp: resp)
 
     def on_get(self, req, resp):
-        try:
-            auth_code = req.params['code']
-        except KeyError:
-            raise falcon.HTTPForbidden('Forbidden', 'Missing access code')
+        auth_code = req.params.get('code', None)
+
+        if auth_code is None:
+            error = req.params.get('error', None)
+
+            if error is None:
+                # Something wierd is happening, likely someone is hitting our callback without it
+                # coming from Auth0, in that case, log and run away.
+                msg = (
+                    f'The callback url was reached without an `auth_code` and without and `error` '
+                    f'in the params. That should not be possible if it is coming from Auth0.'
+                )
+                log.warning(msg)
+                self.failed_action(req, resp, error='no_auth_token_or_error', message=msg)
+            else:
+                msg = req.params.get('error_description', '')
+                self.failed_action(req, resp, error=error, message=msg)
+
+            self.failed_action(req, resp, error='no_auth_token',
+                               message='No Authentication token was found for this request.')
+
+            # failed_action might not raise and might not eject us from this request, if that
+            # happens, we can't continue so through a bad request.
+            log.error(
+                f'Someone accessed the authentication callback url and did not have an error or an '
+                f'auth_code. We called failed_action, but you did not raise an exception. We can '
+                f'not continue with this request. Failed actions should handle the error.'
+            )
+            raise falcon.HTTPInternalServerError(
+                title='Authentication Error',
+                description='An internal error occurred during authentication.'
+            )
 
         data = self.get_user_data(auth_code)
 
