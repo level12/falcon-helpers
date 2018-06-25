@@ -31,28 +31,31 @@ def test_config_as_mapping():
     with pytest.raises(ConfigurationError):
         assert conf.doesnt
 
+
 def test_config_from_inis():
 
     with tempfile.NamedTemporaryFile() as f1, tempfile.NamedTemporaryFile() as f2:
         conf1 = textwrap.dedent(
-        '''
-        [sectionone]
-        x = 1
+            '''
+            [sectionone]
+            x = 1
 
-        [sectiontwo]
-        x = 2
-        y = somestring
-        ''')
+            [sectiontwo]
+            x = 2
+            y = somestring
+            ''')
 
         conf2 = textwrap.dedent(
-        '''
-        [sectionone]
-        x = 3
+            '''
+            [sectionone]
+            x = 3
+            thing = false
+            other = true
 
-        [sectionthree]
-        y = 6
-        other = mystring
-        ''')
+            [sectionthree]
+            y = 6
+            other = mystring
+            ''')
 
         f1.write(conf1.encode())
         f1.seek(0)
@@ -64,6 +67,8 @@ def test_config_from_inis():
 
         # Test later config override earlier ones
         assert config.sectionone.x == '3'
+        assert config.sectionone.thing is False
+        assert config.sectionone.other is True
 
         # test same named, in different section, is not overridden
         assert config.sectiontwo.x == '2'

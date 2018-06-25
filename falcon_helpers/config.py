@@ -27,7 +27,7 @@ class Config(dict):
             raise ConfigurationError(f'Unable to find configuration value for key {item}')
 
     @classmethod
-    def from_inis(cls, *fpaths):
+    def from_inis(cls, *fpaths, coerce_bools=True):
         """Read the configuration for ini files
 
         *fpaths is passed straight to `ConfigParser.read` so it can be multiple configuration files
@@ -36,7 +36,18 @@ class Config(dict):
         config = configparser.ConfigParser()
         config.read(fpaths)
 
-        return cls([
-            (s, cls(config.items(s)))
-            for s in config.sections()
-        ])
+        sections = []
+        for section in config.sections():
+            items = []
+            for key, value in config.items(section):
+                # Coerce booleans to literal types
+                if value == 'true' or value == 'True':
+                    value = True
+
+                elif value == 'false' or value == 'False':
+                    value = False
+
+                items.append((key, value))
+
+            sections.append((section, cls(items)))
+        return cls(sections)
