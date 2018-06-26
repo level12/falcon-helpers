@@ -1,3 +1,12 @@
+0.16.0 - 2018-06-25
+###################
+
+* [FEAT] Create a New Base API Implementation (ed3f715_)
+* [BUG] Squash a bunch of bugs
+
+.. _ed3f715: https://gitlab.com/skosh/falcon-helpers/commit/ed3f715
+
+
 0.15.3 - 2018-06-18
 ###################
 
