@@ -1,3 +1,11 @@
+0.16.1 - 2018-06-27
+###################
+
+* [BUG] Cleanup Storage Logging Error (7a756d6_)
+
+.. _7a756d6: https://gitlab.com/skosh/falcon-helpers/commit/7a756d6
+
+
 0.16.0 - 2018-06-25
 ###################
 
