@@ -1,3 +1,5 @@
+import boto3
+import moto
 import os.path
 import pathlib
 import tempfile
@@ -12,6 +14,21 @@ def document_from_temp(temp):
         path=temp.name,
         details={}
     )
+
+
+class TestS3FileStore:
+    @moto.mock_s3
+    def test_warning_message_writes_when_passing_mode(self, caplog):
+        s3 = boto3.resource('s3')
+        s3.create_bucket(Bucket='bucket')
+        obj = s3.Object('bucket', key='path')
+        obj.put(Body='content')
+
+        doc = storage.Document('name', 'uid', 'path')
+        store = storage.S3FileStore('bucket')
+        data = store.fetch_fp(doc, mode='rb')
+        assert data.read() == b'content'
+        assert 'S3FileStore' in caplog.records[0].message
 
 
 class TestLocalFileStore:

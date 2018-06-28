@@ -33,8 +33,9 @@ setup(
         's3': ['boto3'],
         'cli': ['click'],
         'dev': [
+            'moto',
             'click',
-            'pytest',
+            'pytest>=3.4',
             'raven',
         ]
     },
