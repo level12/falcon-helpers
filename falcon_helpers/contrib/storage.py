@@ -84,7 +84,7 @@ class S3FileStore:
 
         if mode:
             log.warning(
-                f'Setting mode when fetching a file pointer is not supported for ',
+                f'Setting mode when fetching a file pointer is not supported for '
                 f'{self.__class__.__name__}'
             )
 
@@ -123,7 +123,11 @@ class S3FileStore:
         # This could raise an exception, catch it at the app level so you have the reporting
         # capabilities... if only python had a Result type...
         obj = self.connection.Object(self.bucket, final_path.lstrip('/'))
-        result = obj.put(Body=fp, ContentType=content_type, Metadata={ 'original-filename': filename })
+        result = obj.put(
+            Body=fp,
+            ContentType=content_type,
+            Metadata={'original-filename': filename}
+        )
 
         if ('ResponseMetadata' in result and
             result['ResponseMetadata'].get('HTTPStatusCode', None) in (200, 201)):
