@@ -1,4 +1,9 @@
+import logging
+
 from falcon import util
+
+
+log = logging.getLogger(__name__)
 
 
 class MultiMiddleware:
@@ -46,12 +51,28 @@ class MultiMiddleware:
 
     def process_request(self, req, resp):
         for mw in self.req_mw:
-            mw(req, resp)
+            log.debug(f'Running {mw.__self__.__class__.__name__} middleware process_request.')
+            try:
+                mw(req, resp)
+            except Exception as e:
+                log.debug(f'{mw.__self__.__class__.__name__} MW process_request raised exception.')
+                raise
 
     def process_resource(self, req, resp, resource, params):
         for mw in self.resc_mw:
-            mw(req, resp, resource, params)
+            log.debug(f'Running {mw.__self__.__class__.__name__} middleware process_resource.')
+            try:
+                mw(req, resp, resource, params)
+            except Exception as e:
+                log.debug(f'{mw.__self__.__class__.__name__} MW process_resource raised exception.')
+                raise
 
     def process_response(self, req, resp, resource, resp_succeded):
         for mw in self.resp_mw:
-            mw(req, resp, resource, resp_succeded)
+            log.debug(f'Running {mw.__self__.__class__.__name__} middleware process_response.')
+
+            try:
+                mw(req, resp, resource, resp_succeded)
+            except Exception as e:
+                log.debug(f'{mw.__self__.__class__.__name__} MW process_resource raised exception.')
+                raise
