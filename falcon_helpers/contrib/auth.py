@@ -39,7 +39,7 @@ class User(ModelBase, BaseColumns):
     assigned_permissions = sa.orm.relationship('Permission', secondary='auth_user_permissions')
 
     def __repr__(self):
-        return self.ident
+        return f'<{self.__class__.__name__} ident={self.ident}>'
 
     def __str__(self):
         return self.ident
