@@ -235,10 +235,17 @@ class CrudBase:
             self.session.flush()
         except sa.exc.IntegrityError as e:
             self.session.rollback()
-            resp.status = falcon.HTTP_409
-            resp.media = {
-                'errors': ['An object with that identifier already exists.']
-            }
+
+            if 'violates not-null constraint' in str(e):
+                resp.status = falcon.HTTP_400
+                resp.media = {
+                    'errors': ['The submitted object is not complete.']
+                }
+            else:
+                resp.status = falcon.HTTP_409
+                resp.media = {
+                    'errors': ['An object with that identifier already exists.']
+                }
             return
 
         resp.status = falcon.HTTP_201
