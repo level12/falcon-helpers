@@ -1,3 +1,4 @@
+import datetime
 import logging
 import inspect
 
@@ -33,16 +34,22 @@ def logrequest(level=logging.DEBUG):
     """
 
     def handle_resource_func(wrapped, instance, args, kwargs):
+        start = datetime.datetime.now()
         method_name = f'{instance.__class__.__name__}.{wrapped.__func__.__name__}'
         try:
             log.log(level, f'{method_name} called.')
             result = wrapped(*args, **kwargs)
         except Exception as e:
+            end = datetime.datetime.now()
+            duration = end - start
+
             name = e.__class__.__name__
-            log.log(level, f'{method_name} raised {name}: {str(e)}.')
+            log.log(level, f'{method_name} raised {name} in {duration.total_seconds()} seconds: {str(e)}.')
             raise
         else:
-            log.log(level, f'{method_name} succeeded.')
+            end = datetime.datetime.now()
+            duration = end - start
+            log.log(level, f'{method_name} succeeded in {duration.total_seconds()} seconds.')
 
         return result
 
@@ -78,6 +85,20 @@ def logrequest(level=logging.DEBUG):
                 return handle_resource_func(wrapped, instance, args, kwargs)
 
     return logrequest
+
+
+@wrapt.decorator
+def timeit(wrapped, instance, args, kwargs):
+    method_name = f'{instance.__class__.__name__}.{wrapped.__func__.__name__}'
+    start = datetime.datetime.now()
+
+    result = wrapped(*args, **kwargs)
+
+    end = datetime.datetime.now()
+    duration = (end - start).total_seconds()
+    log.debug(f'{method_name} started at {start} and ended at {end}, total {duration}')
+
+    return result
 
 
 class Logging:
