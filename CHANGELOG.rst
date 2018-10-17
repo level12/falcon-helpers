@@ -1,3 +1,13 @@
+0.17.0 - 2018-10-17
+##################3
+
+* [FEAT] Add some usefule logging features
+* [FEAT] Add Logging to MultiMiddleware
+
+* [BUG] Fix User REPR
+* [BUG] Report Integrity Errors with Useful Messages
+
+
 0.16.1 - 2018-06-27
 ###################
 
