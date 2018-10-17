@@ -44,7 +44,7 @@ class ParseJWTMiddleware:
     def __init__(self, audience, secret=None, pubkey=None,
                  cookie_name=None, header_name=None,
                  context_key='auth_token_contents',
-                 when_fails=_default_failed):
+                 when_fails=_default_failed, decode_algorithms=None):
 
         if cookie_name and header_name:
             raise config.ConfigurationError('Can\'t pull the token from both a header and a cookie')
@@ -59,6 +59,7 @@ class ParseJWTMiddleware:
         self.header_name = header_name
         self.failed_action = when_fails
         self.context_key = context_key
+        self.decode_algorithms = decode_algorithms if decode_algorithms else ['RS256', 'HS512']
 
         if self.pubkey is not None and not self.pubkey.startswith('ssh-rsa'):
             raise config.ConfigurationError(
@@ -80,7 +81,8 @@ class ParseJWTMiddleware:
                 f'{header["alg"]} requires a {type_}.'
             )
 
-        return jwt.decode(token, verify_with, audience=self.audience)
+        return jwt.decode(token, verify_with, audience=self.audience,
+                algorithms=self.decode_algorithms)
 
     def process_request(self, req, resp):
         if self.cookie_name:

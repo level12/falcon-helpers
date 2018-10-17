@@ -71,7 +71,7 @@ def test_verification_types(hs_token, rsa_token, rsa_pub_key):
     assert 'HS256' in str(e.value)
     assert 'requires a secret key.' in str(e.value)
 
-    mw = MW(audience='test', cookie_name='cookie', secret='secret')
+    mw = MW(audience='test', cookie_name='cookie', secret='secret', decode_algorithms=['HS256'])
     assert mw.verify_request(hs_token) == {
         'key': 'hs',
         'aud': 'test',
@@ -93,7 +93,9 @@ def test_verification_types(hs_token, rsa_token, rsa_pub_key):
 
 def test_process_request_with_header(hs_token):
     app = falcon.API(
-        middleware=[MW(audience='test', secret='secret', header_name='Auth')]
+        middleware=[
+            MW(audience='test', secret='secret', header_name='Auth', decode_algorithms=['HS256'])
+        ]
     )
     client = falcon.testing.TestClient(app)
 
@@ -119,9 +121,9 @@ def test_process_request_with_header(hs_token):
 
 
 def test_process_request_with_cookie(hs_token):
-    app = falcon.API(
-        middleware=[MW(audience='test', secret='secret', cookie_name='Auth')]
-    )
+    app = falcon.API(middleware=[
+        MW(audience='test', secret='secret', cookie_name='Auth', decode_algorithms=['HS256'])
+    ])
     client = falcon.testing.TestClient(app)
 
     resc = falcon.testing.SimpleTestResource()

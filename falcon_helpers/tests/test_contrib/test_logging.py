@@ -35,8 +35,8 @@ def test_class_decoration(client, caplog):
 
         assert len(caplog.records) == 2
         start, finish = caplog.records
-        assert start.message == 'FakeResource.on_get called.'
-        assert finish.message == 'FakeResource.on_get succeeded.'
+        assert start.message.startswith('FakeResource.on_get called')
+        assert finish.message.startswith('FakeResource.on_get succeeded')
 
     caplog.clear()
 
@@ -46,8 +46,8 @@ def test_class_decoration(client, caplog):
 
         assert len(caplog.records) == 2
         start, finish = caplog.records
-        assert start.message == 'FakeResource.on_post called.'
-        assert finish.message == 'FakeResource.on_post raised Exception: Bad.'
+        assert start.message.startswith('FakeResource.on_post called')
+        assert finish.message.startswith('FakeResource.on_post raised Exception')
 
 
 def test_method_decoration(client, caplog):
@@ -59,5 +59,5 @@ def test_method_decoration(client, caplog):
 
         assert len(caplog.records) == 2
         start, finish = caplog.records
-        assert start.message == 'FakeResource2.on_get called.'
-        assert finish.message == 'FakeResource2.on_get succeeded.'
+        assert start.message.startswith('FakeResource2.on_get called')
+        assert finish.message.startswith('FakeResource2.on_get succeeded')
