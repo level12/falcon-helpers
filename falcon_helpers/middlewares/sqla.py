@@ -9,7 +9,7 @@ class SQLAlchemySessionMiddleware:
         resource.session = self.session
 
     def process_response(self, req, resp, resource, req_succeeded):
-        if not hasattr(resource, 'session'):
+        if not self.session:
             return
 
         try:
