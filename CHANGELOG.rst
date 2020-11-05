@@ -1,5 +1,13 @@
+0.17.1 - 2020-11-04
+###################
+
+* [BUG] Rollback SQLA session when an error occurs before resource middleware is run (b455800_)
+
+.. _b455800: https://github.com/nZac/falcon-helpers/commit/b455800f904ce7f22b49f8edd807b8451572c7e2
+
+
 0.17.0 - 2018-10-17
-##################3
+###################
 
 * [FEAT] Add some usefule logging features
 * [FEAT] Add Logging to MultiMiddleware
