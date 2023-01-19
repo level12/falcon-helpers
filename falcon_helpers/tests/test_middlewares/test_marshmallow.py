@@ -144,7 +144,7 @@ def test_keeps_the_media_and_populates_the_raw_stream(client):
     assert resp.status_code == 200
     assert resource.captured_req.context['_marshalled']
     assert resource.captured_req.media == {'name': 'john'}
-    assert resource.captured_req.context['marshalled_stream'] == b'{"name":"john"}'
+    assert resource.captured_req.context['marshalled_stream'] == b'{"name": "john"}'
 
 
 def test_support_default_loader(client):

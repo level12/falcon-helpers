@@ -18,7 +18,7 @@ class FakeMW:
 
 class FakeResc:
     def on_get(self, req, resp):
-        resp.media = req.context
+        resp.media = dict(req.context)
 
 
 def test_accepts_middleware_during_init():

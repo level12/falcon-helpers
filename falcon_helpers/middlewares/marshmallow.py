@@ -41,7 +41,7 @@ class MarshmallowMiddleware:
             req.context['_marshalled'] = False
             return
 
-        req.context['marshalled_stream'] = req.stream.read()
+        req.context['marshalled_stream'] = req.bounded_stream.read()
         data = req._media = ujson.loads(req.context['marshalled_stream'])
 
         loaded = (self._default_load(data, req, resource, params)
