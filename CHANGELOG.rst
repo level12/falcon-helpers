@@ -1,3 +1,9 @@
+0.18.0 - 2022-01-20
+###################
+
+* [NEW] Support falcon 2
+* [BREAK] Limit some dependency versions
+
 0.17.1 - 2020-11-04
 ###################
 
