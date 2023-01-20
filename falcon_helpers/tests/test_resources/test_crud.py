@@ -60,7 +60,7 @@ def app():
     Base.metadata.drop_all()
     Base.metadata.create_all()
 
-    app = falcon.API(
+    app = falcon.App(
         middleware=[
             SQLAlchemySessionMiddleware(session),
             MarshmallowMiddleware(),

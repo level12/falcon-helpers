@@ -21,7 +21,7 @@ class AuthRequiredMiddleware:
         def when_fails_auth(req, resp, token_value):
             raise TerribleException(token_value)
 
-        api = falcon.API(
+        api = falcon.App(
             middleware=[
                 AuthRequiredMiddleware(when_fails=when_fails_auth)
             ]

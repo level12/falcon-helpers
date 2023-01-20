@@ -4,12 +4,13 @@ from falcon_helpers.config import Config
 from falcon_helpers.middlewares import multi as multimw
 
 
-class API(falcon.API):
+class App(falcon.App):
     __slots__ = (
         'config',
         'plugins',
         '_dynmw',
         'enable_dynamic_mw',
+        '_initialized',
     )
 
     def __init__(self, middleware=None, enable_dynamic_mw=True, independent_middleware=True,
@@ -28,18 +29,24 @@ class API(falcon.API):
         else:
             kwargs['middleware'] = middleware
 
+        self._initialized = False
         self.plugins = {}
 
         super().__init__(**kwargs)
 
+        self._initialized = True
+
     def add_middleware(self, mw):
-        self._dynmw.add_middleware(mw)
+        if self._initialized and hasattr(self, '_dynmw'):
+            self._dynmw.add_middleware(mw)
+        else:
+            super().add_middleware(mw)
 
     @classmethod
-    def from_inis(cls, *paths, api_kwargs=None):
-        """Create an instance of the API from configuration files"""
+    def from_inis(cls, *paths, app_kwargs=None):
+        """Create an instance of the app from configuration files"""
 
-        app = cls(**(api_kwargs or {}))
+        app = cls(**(app_kwargs or {}))
 
         app.config = Config.from_inis(*paths)
 

@@ -30,7 +30,7 @@ Quickstart
   import falcon
   import falcon_helpers
 
-  api = falcon.API(
+  api = falcon.App(
     middlewares=[
       falcon_helpers.middlewares.StaticsMiddleware()
     ]

@@ -18,7 +18,7 @@ class SQLAlchemyPlugin:
 
         sqla = plugins.SQLAlchemyPlugin()
 
-        class MyApp(falcon_helpers.API):
+        class MyApp(falcon_helpers.App):
             pass
 
 

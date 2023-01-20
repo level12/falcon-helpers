@@ -11,7 +11,7 @@ class SentryPlugin:
     """Simple Sentry integration plugin
 
         sentry = falcon_helpers.plugins.SentryPlugin()
-        app = falcon_helpers.API()
+        app = falcon_helpers.App()
         app.config = {'sentry': {dsn': 'rand_sentry_dsn'}}
 
         sentry.register_app(app)
@@ -23,7 +23,7 @@ class SentryPlugin:
         sentry = Sentry()
 
         def create_app(config):
-            app = falcon_helpers.API()
+            app = falcon_helpers.App()
             app.config = config
 
             sentry.register(app)

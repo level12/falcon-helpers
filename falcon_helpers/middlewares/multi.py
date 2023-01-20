@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 class MultiMiddleware:
     """MultiMiddleware allows dynamic addition of middlewares onto the main middleware stack
 
-    NOTE(nZac): If you use falcon_helpers.app.API you get this by default and `API.add_middleware`
+    NOTE(nZac): If you use falcon_helpers.app.App you get this by default and `App.add_middleware`
     is mapped to this object.
 
     NOTE(nZac): This middleware only supports independent middleware. All process responses will be

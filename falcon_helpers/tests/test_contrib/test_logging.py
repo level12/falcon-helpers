@@ -41,8 +41,7 @@ def test_class_decoration(client, caplog):
     caplog.clear()
 
     with caplog.at_level(logging.DEBUG):
-        with pytest.raises(Exception):
-            client.simulate_post('/')
+        assert client.simulate_post('/').status_code == 500
 
         assert len(caplog.records) == 2
         start, finish = caplog.records

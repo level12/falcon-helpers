@@ -11,7 +11,7 @@ from falcon_helpers.middlewares.marshmallow import MarshmallowMiddleware
 
 @pytest.fixture()
 def client():
-    api = falcon.API(middleware=[
+    api = falcon.App(middleware=[
         MarshmallowMiddleware()
     ])
 

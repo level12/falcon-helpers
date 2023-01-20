@@ -3,6 +3,6 @@ from .middlewares.auth_required import AuthRequiredMiddleware
 
 from .resources import auth0
 from .config import Config
-from .app import API
+from .app import App
 
 from . import contrib
