@@ -53,13 +53,13 @@ class MarshmallowMiddleware:
             raise falcon.HTTPStatus(
                 falcon.HTTP_400,
                 headers={'Content-Type': 'application/json'},
-                body=ujson.dumps({'errors': loaded.errors}),
+                text=ujson.dumps({'errors': loaded.errors}),
             )
 
         req.context['dto'] = loaded
         req.context['_marshalled'] = True
 
     def process_response(self, req, resp, resource, req_succeeded):
-        if isinstance(resp.body, MarshalResult):
+        if isinstance(resp.text, MarshalResult):
             resp.content_type = 'application/json'
-            resp.body = ujson.dumps(resp.body.data)
+            resp.text = ujson.dumps(resp.text.data)
