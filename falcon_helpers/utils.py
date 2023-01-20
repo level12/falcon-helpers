@@ -1,4 +1,4 @@
-from collections import Iterable
+from collections.abc import Iterable
 
 def flatten(items):
     """Yield items from any nested iterable; see REF."""

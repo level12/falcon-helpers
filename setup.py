@@ -35,7 +35,7 @@ setup(
         'dev': [
             'moto',
             'click',
-            'pytest>=3.4,<4',
+            'pytest>4',
             'raven',
         ]
     },

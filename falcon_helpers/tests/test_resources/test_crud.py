@@ -207,7 +207,7 @@ class TestListBase:
         resource.default_page_size = None
 
         app.add_route('/pagination', resource)
-        c = client(app)
+        c = falcon.testing.TestClient(app)
 
         resp = c.simulate_get(f'/pagination')
         assert len(resp.json) == 2
