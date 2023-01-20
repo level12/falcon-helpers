@@ -17,12 +17,12 @@ setup(
     include_package_data=True,
     install_requires=[
         'cryptography',
-        'falcon',
+        'falcon<2',
         'falcon_multipart',
         'jinja2',
-        'marshmallow',
+        'marshmallow<3',
         'marshmallow-sqlalchemy',
-        'pyjwt',
+        'pyjwt<2',
         'sqlalchemy',
         'requests',
         'ujson',
@@ -35,7 +35,7 @@ setup(
         'dev': [
             'moto',
             'click',
-            'pytest>=3.4',
+            'pytest>=3.4,<4',
             'raven',
         ]
     },

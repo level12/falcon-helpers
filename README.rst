@@ -35,3 +35,10 @@ Quickstart
       falcon_helpers.middlewares.StaticsMiddleware()
     ]
   )
+
+
+Development
+-----------
+1. Create a Python 3.8 virtual environment, and activate it.
+2. ``pip install -e .[dev]``
+3. ``pytest``
