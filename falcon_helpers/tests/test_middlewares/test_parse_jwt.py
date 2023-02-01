@@ -92,7 +92,7 @@ def test_verification_types(hs_token, rsa_token, rsa_pub_key):
 
 
 def test_process_request_with_header(hs_token):
-    app = falcon.API(
+    app = falcon.App(
         middleware=[
             MW(audience='test', secret='secret', header_name='Auth', decode_algorithms=['HS256'])
         ]
@@ -121,7 +121,7 @@ def test_process_request_with_header(hs_token):
 
 
 def test_process_request_with_cookie(hs_token):
-    app = falcon.API(middleware=[
+    app = falcon.App(middleware=[
         MW(audience='test', secret='secret', cookie_name='Auth', decode_algorithms=['HS256'])
     ])
     client = falcon.testing.TestClient(app)
@@ -143,7 +143,7 @@ def test_process_request_with_cookie(hs_token):
 
 
 def test_process_request_with_default_failed_action():
-    app = falcon.API(
+    app = falcon.App(
         middleware=[MW(audience='test', secret='secret', header_name='Auth')]
     )
     client = falcon.testing.TestClient(app)
@@ -160,10 +160,15 @@ def test_process_request_with_custom_failed_action():
     def custom_failed(exc, req, resp):
         raise RuntimeError("works")
 
-    app = falcon.API(
+    def handle_err(req, resp, ex, params):
+        # By default Falcon just gives us a 500 response, but we want the error below.
+        raise ex
+
+    app = falcon.App(
         middleware=[MW(audience='test', secret='secret', header_name='Auth',
                        when_fails=custom_failed)]
     )
+    app.add_error_handler(RuntimeError, handle_err)
     client = falcon.testing.TestClient(app)
 
     resc = falcon.testing.SimpleTestResource()

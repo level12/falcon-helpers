@@ -2,13 +2,13 @@ import unittest.mock as mock
 import falcon.testing
 import pytest
 
-from falcon_helpers import API
+from falcon_helpers import App
 from falcon_helpers.resources.auth0 import LoginCallbackResource
 
 
 @pytest.fixture()
 def app():
-    return API()
+    return App()
 
 
 @pytest.fixture()
@@ -28,8 +28,7 @@ class TestLoginCallbackResource:
 
     def test_callback_resource_custom_failed(self, client):
         def when_fails(req, resp, error, message, **kwargs):
-            resp.media = {'error': 'custom'}
-            raise falcon.HTTPStatus('200 OK')
+            raise falcon.HTTPStatus(falcon.HTTP_200, text='custom error')
 
         resc = LoginCallbackResource('url', 'id', 'secret', 'uri', 'domain', False,
                                      when_fails=when_fails)
@@ -37,7 +36,7 @@ class TestLoginCallbackResource:
         resp = client.simulate_get('/auth/callback')
 
         assert resp.status_code == 200
-        assert resp.json == {'error': 'custom'}
+        assert resp.text == 'custom error'
 
     def test_callback_resource_custom_failed_doesnt_raise(self, client):
         def when_fails(req, resp, error, message, **kwargs):
@@ -60,8 +59,7 @@ class TestLoginCallbackResource:
 
     def test_callback_resource_with_error_code(self, client):
         def when_fails(req, resp, error, message, **kwargs):
-            resp.media = {'error': error, 'message': message}
-            raise falcon.HTTPStatus('200 OK')
+            raise falcon.HTTPStatus(falcon.HTTP_200, text=f'error: {error}, message: {message}')
 
         resc = LoginCallbackResource('url', 'id', 'secret', 'uri', 'domain', False,
                                      when_fails=when_fails)
@@ -72,4 +70,4 @@ class TestLoginCallbackResource:
         })
 
         assert resp.status_code == 200
-        assert resp.json == {'error': 'error', 'message': 'description'}
+        assert resp.text == 'error: error, message: description'

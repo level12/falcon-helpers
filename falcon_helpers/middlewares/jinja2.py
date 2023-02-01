@@ -56,7 +56,7 @@ class Jinja2Response:
 
 
         resp.content_type = 'text/html'
-        resp.body = template.render(**self.ctx)
+        resp.text = template.render(**self.ctx)
 
 
 class Jinja2Middleware:

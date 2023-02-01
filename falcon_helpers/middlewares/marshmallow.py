@@ -41,7 +41,7 @@ class MarshmallowMiddleware:
             req.context['_marshalled'] = False
             return
 
-        req.context['marshalled_stream'] = req.stream.read()
+        req.context['marshalled_stream'] = req.bounded_stream.read()
         data = req._media = ujson.loads(req.context['marshalled_stream'])
 
         loaded = (self._default_load(data, req, resource, params)
@@ -53,13 +53,13 @@ class MarshmallowMiddleware:
             raise falcon.HTTPStatus(
                 falcon.HTTP_400,
                 headers={'Content-Type': 'application/json'},
-                body=ujson.dumps({'errors': loaded.errors}),
+                text=ujson.dumps({'errors': loaded.errors}),
             )
 
         req.context['dto'] = loaded
         req.context['_marshalled'] = True
 
     def process_response(self, req, resp, resource, req_succeeded):
-        if isinstance(resp.body, MarshalResult):
+        if isinstance(resp.text, MarshalResult):
             resp.content_type = 'application/json'
-            resp.body = ujson.dumps(resp.body.data)
+            resp.text = ujson.dumps(resp.text.data)

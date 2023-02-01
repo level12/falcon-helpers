@@ -18,7 +18,7 @@ class FakeMW:
 
 class FakeResc:
     def on_get(self, req, resp):
-        resp.media = req.context
+        resp.media = dict(req.context)
 
 
 def test_accepts_middleware_during_init():
@@ -40,7 +40,7 @@ def test_accepts_middleware_during_init():
 
 
 def test_calls_middlewares():
-    app = falcon.API(middleware=MultiMiddleware(middleware=FakeMW()))
+    app = falcon.App(middleware=MultiMiddleware(middleware=FakeMW()))
 
     app.add_route('/', FakeResc())
 

@@ -1,3 +1,11 @@
+0.18.0 - 2023-01-20
+###################
+* [NEW] Support falcon 3
+* [NEW] Support Python 3.10
+* [BREAK] Require falcon 3
+* [BREAK] Limit some dependency versions
+* [BREAK] Rename ``app.API`` to ``app.App`` in `accordance with falcon <https://github.com/falconry/falcon/issues/1579>`_
+
 0.17.1 - 2020-11-04
 ###################
 

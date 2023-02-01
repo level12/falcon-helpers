@@ -15,7 +15,7 @@ class MockResource(falcon.testing.SimpleTestResource):
 
 @pytest.fixture()
 def client():
-    api = falcon.API(middleware=[
+    api = falcon.App(middleware=[
         SQLAlchemySessionMiddleware()
     ])
 
@@ -27,7 +27,7 @@ def test_mw_takes_custom_session(client):
     assert db.session != sess
 
     mw = SQLAlchemySessionMiddleware(sess)
-    api = falcon.API(middleware=[mw])
+    api = falcon.App(middleware=[mw])
     resc = MockResource()
     api.add_route('/', resc)
     custom_client = falcon.testing.TestClient(api)

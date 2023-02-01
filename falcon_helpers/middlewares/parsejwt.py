@@ -14,7 +14,7 @@ class ParseJWTMiddleware:
         import falcon
         from falcon_helpers.middlewares.parsejwt import ParseJWTMiddleware
 
-        api = falcon.API(
+        api = falcon.App(
             middleware=[
                 ParseJWTMiddleware(
                     audience='your-audience',

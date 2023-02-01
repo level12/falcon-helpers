@@ -14,7 +14,7 @@ db.session.configure(bind=bind)
 
 @pytest.fixture()
 def api():
-    return app.API()
+    return app.App()
 
 
 @pytest.fixture()

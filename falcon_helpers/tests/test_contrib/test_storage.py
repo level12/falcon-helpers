@@ -4,6 +4,7 @@ import os.path
 import pathlib
 import tempfile
 import falcon_helpers.contrib.storage as storage
+from unittest import mock
 
 
 def document_from_temp(temp):
@@ -17,6 +18,7 @@ def document_from_temp(temp):
 
 
 class TestS3FileStore:
+    @mock.patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
     @moto.mock_s3
     def test_warning_message_writes_when_passing_mode(self, caplog):
         s3 = boto3.resource('s3')

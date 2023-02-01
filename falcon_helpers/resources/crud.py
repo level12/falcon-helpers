@@ -88,7 +88,7 @@ class ListBase:
             return
 
         resp.status = falcon.HTTP_200
-        resp.body = self.response_data(result, req, **kwargs)
+        resp.text = self.response_data(result, req, **kwargs)
 
     def response_data(self, data, req, **kwargs):
         schema = self.schema(many=True)
@@ -202,7 +202,7 @@ class CrudBase:
                 f'not in the matched route parameters. Add a `default_param_name` to the resource '
                 f'which matches the route variable. Found these items: {",".join(kwargs.keys())}.'
             )
-            raise falcon.HTTPInternalServerError("Misconfigured route")
+            raise falcon.HTTPInternalServerError(title="Misconfigured route")
 
         try:
             return self.session.query(self.db_cls).get(obj_id)
@@ -218,7 +218,7 @@ class CrudBase:
             raise falcon.HTTPNotFound
 
         schema = self.schema()
-        resp.body = schema.dump(result)
+        resp.text = schema.dump(result)
         resp.status = falcon.HTTP_200
 
     def on_put(self, req, resp, **kwargs):
@@ -226,7 +226,7 @@ class CrudBase:
         self.session.flush()
 
         resp.status = falcon.HTTP_200
-        resp.body = self.schema().dump(req.context['dto'].data)
+        resp.text = self.schema().dump(req.context['dto'].data)
 
     def on_post(self, req, resp, **kwargs):
         self.session.add(req.context['dto'].data)

@@ -1,7 +1,7 @@
 import pytest
 import sqlalchemy as sa
 
-from falcon_helpers.app import API
+from falcon_helpers.app import App
 from falcon_helpers.plugins import SQLAlchemyPlugin
 
 
@@ -37,7 +37,7 @@ def test_register_plugin():
     sess = sa.orm.session.Session()
     pl = SQLAlchemyPlugin(url=url, session=sess)
 
-    app = API()
+    app = App()
     pl.register(app)
 
     assert app.plugins['sqla'] == pl
@@ -57,7 +57,7 @@ def test_register_plugin_with_sessionmaker():
     sess = sa.orm.session.sessionmaker()
     pl = SQLAlchemyPlugin(url=url, session=sess)
 
-    app = API()
+    app = App()
     pl.register(app)
 
     assert pl.session().bind == pl.engine

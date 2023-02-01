@@ -1,7 +1,7 @@
 import falcon.testing
 import pytest
 
-from falcon_helpers import API
+from falcon_helpers import App
 from falcon_helpers.plugins import SentryPlugin
 
 
@@ -11,7 +11,7 @@ class FakeException(Exception):
 
 @pytest.fixture()
 def app():
-    app = API()
+    app = App()
 
     class FakeResource:
         def on_get(self, req, resp):
