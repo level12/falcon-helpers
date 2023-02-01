@@ -197,7 +197,7 @@ class TestListBase:
         # check the overriding
         assert lb.column_type_filters[sa.sql.sqltypes.String]('col', 'val') == 'works'
 
-    def test_listbase_get_with_default_pagination(self, app):
+    def test_listbase_get_with_default_pagination(self, app, client):
         m1 = ModelTest.testing_create()
         m2 = ModelTest.testing_create()
         session.add_all([m1, m2])
@@ -207,12 +207,11 @@ class TestListBase:
         resource.default_page_size = None
 
         app.add_route('/pagination', resource)
-        c = falcon.testing.TestClient(app)
 
-        resp = c.simulate_get(f'/pagination')
+        resp = client.simulate_get(f'/pagination')
         assert len(resp.json) == 2
 
-        resp = c.simulate_get(f'/pagination', query_string=f'pageSize=1')
+        resp = client.simulate_get(f'/pagination', query_string=f'pageSize=1')
         assert len(resp.json) == 1
 
     def test_listbase_get(self, client):

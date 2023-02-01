@@ -41,4 +41,4 @@ Development
 -----------
 1. Create a Python 3.10 virtual environment, and activate it.
 2. ``pip install -e .[dev]``
-3. ``pytest``
+3. ``pytest`` or  run ``tox`` and verify the tests pass.
