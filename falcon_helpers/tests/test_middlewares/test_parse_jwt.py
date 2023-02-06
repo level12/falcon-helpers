@@ -109,7 +109,7 @@ def test_process_request_with_header(hs_token):
     resp = client.simulate_get(
         '/',
         headers={
-            'Auth': hs_token.decode(),
+            'Auth': hs_token,
         }
     )
     assert resp.status_code == 200
@@ -133,7 +133,7 @@ def test_process_request_with_cookie(hs_token):
     assert resp.status_code == 200
     assert 'auth_token_contents' not in resc.captured_req.context
 
-    resp = client.simulate_get('/', headers={'Cookie': 'Auth=' + hs_token.decode()})
+    resp = client.simulate_get('/', headers={'Cookie': 'Auth=' + hs_token})
     assert resp.status_code == 200
     assert 'auth_token_contents' in resc.captured_req.context
     assert resc.captured_req.context['auth_token_contents'] == {

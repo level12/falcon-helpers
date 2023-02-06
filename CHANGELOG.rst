@@ -1,3 +1,7 @@
+0.19.0 - 2023-02-06
+###################
+* [BREAK] Require pyjwt>=2.4 due to https://pyup.io/vulnerabilities/CVE-2022-29217/48542/
+
 0.18.0 - 2023-01-20
 ###################
 * [NEW] Support falcon 3
