@@ -22,7 +22,7 @@ setup(
         'jinja2',
         'marshmallow<3',
         'marshmallow-sqlalchemy',
-        'pyjwt<2',
+        'pyjwt>=2.4',
         'sqlalchemy<2',
         'requests',
         'ujson',
