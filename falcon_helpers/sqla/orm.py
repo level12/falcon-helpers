@@ -33,6 +33,8 @@ class BaseFunctions:
 
 
 class Testable:
+    __test__ = False  # Prevent pytest from collecting this class when imported in a test file
+
     testing_random_nulls = True
 
     @classmethod
