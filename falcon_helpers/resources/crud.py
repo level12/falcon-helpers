@@ -222,14 +222,14 @@ class CrudBase:
         resp.status = falcon.HTTP_200
 
     def on_put(self, req, resp, **kwargs):
-        self.session.add(req.context['dto'].data)
+        self.session.add(req.context['dto'])
         self.session.flush()
 
         resp.status = falcon.HTTP_200
-        resp.text = self.schema().dump(req.context['dto'].data)
+        resp.text = self.schema().dump(req.context['dto'])
 
     def on_post(self, req, resp, **kwargs):
-        self.session.add(req.context['dto'].data)
+        self.session.add(req.context['dto'])
 
         try:
             self.session.flush()
@@ -249,7 +249,7 @@ class CrudBase:
             return
 
         resp.status = falcon.HTTP_201
-        resp.media = self.schema().dump(req.context['dto'].data).data
+        resp.media = self.schema().dump(req.context['dto'])
 
     def on_delete(self, req, resp, **kwargs):
         try:

@@ -1,7 +1,7 @@
 import logging
 import falcon
+from marshmallow import ValidationError
 import ujson
-from marshmallow.schema import MarshalResult
 
 import falcon_helpers.sqla.db as db
 
@@ -44,22 +44,22 @@ class MarshmallowMiddleware:
         req.context['marshalled_stream'] = req.bounded_stream.read()
         data = req._media = ujson.loads(req.context['marshalled_stream'])
 
-        loaded = (self._default_load(data, req, resource, params)
-                  if not hasattr(resource, 'schema_loader')
-                  else resource.schema_loader(data, req, resource, params))
-
-        if loaded.errors:
+        try:
+            loaded = (self._default_load(data, req, resource, params)
+                    if not hasattr(resource, 'schema_loader')
+                    else resource.schema_loader(data, req, resource, params))
+        except ValidationError as e:
             #  This should probably return whatever the accept header indicates
             raise falcon.HTTPStatus(
                 falcon.HTTP_400,
                 headers={'Content-Type': 'application/json'},
-                text=ujson.dumps({'errors': loaded.errors}),
+                text=ujson.dumps({'errors': e.messages}),
             )
 
         req.context['dto'] = loaded
         req.context['_marshalled'] = True
 
     def process_response(self, req, resp, resource, req_succeeded):
-        if isinstance(resp.text, MarshalResult):
+        if isinstance(resp.text, dict) or isinstance(resp.text, list):
             resp.content_type = 'application/json'
-            resp.text = ujson.dumps(resp.text.data)
+            resp.text = ujson.dumps(resp.text)

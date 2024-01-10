@@ -20,7 +20,7 @@ setup(
         'falcon==3.*',
         'falcon_multipart',
         'jinja2',
-        'marshmallow<3',
+        'marshmallow>2',
         'marshmallow-sqlalchemy',
         'pyjwt>=2.4',
         'sqlalchemy<2',
