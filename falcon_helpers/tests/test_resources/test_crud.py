@@ -29,10 +29,11 @@ class ModelTest(Base, BaseColumns, BaseFunctions, Testable):
     other = sa.orm.relationship("ModelOther")
 
 
-class ModelSchema(ms.ModelSchema):
+class ModelSchema(ms.SQLAlchemyAutoSchema):
     class Meta:
         model = ModelTest
         exclude = ('other',)
+        load_instance = True
 
 
 class BasicCrud(CrudBase):
@@ -97,8 +98,8 @@ class TestCrudBase:
             'id': m1.id,
             'name': m1.name,
             'uni': m1.uni,
-            'created_ts': m1.created_ts.replace(tzinfo=tz.utc).isoformat(),
-            'updated_ts': m1.updated_ts.replace(tzinfo=tz.utc).isoformat(),
+            'created_ts': m1.created_ts.isoformat(),
+            'updated_ts': m1.updated_ts.isoformat(),
         }
 
     def test_crud_base_get_404_with_bad_primary_key(self, client):

@@ -24,11 +24,12 @@ class ObjEntity(orm.BaseColumns, orm.ModelBase):
     name = sa.Column(sa.String)
 
 
-class Obj(mms.ModelSchema):
+class Obj(mms.SQLAlchemyAutoSchema):
     name = mm.fields.String()
 
     class Meta:
         model = ObjEntity
+        load_instance = True
 
 
 class WithoutSchemaResc(falcon.testing.SimpleTestResource):
@@ -42,7 +43,7 @@ class WithSchemaResc(falcon.testing.SimpleTestResource):
 class WithCustomLoader(WithSchemaResc):
     def schema_loader(self, data, req, resource, params):
         result = self.schema().load(data, session=db.session)
-        result.data.name = 'other'
+        result.name = 'other'
         return result
 
 
@@ -158,7 +159,7 @@ def test_support_default_loader(client):
 
     assert resp.status_code == 200
     assert resource.captured_req.context['_marshalled']
-    assert resource.captured_req.context['dto'].data.name == 'john'
+    assert resource.captured_req.context['dto'].name == 'john'
 
 
 def test_support_custom_loader(client):
@@ -172,7 +173,7 @@ def test_support_custom_loader(client):
 
     assert resp.status_code == 200
     assert resource.captured_req.context['_marshalled']
-    assert resource.captured_req.context['dto'].data.name == 'other'
+    assert resource.captured_req.context['dto'].name == 'other'
 
 
 def test_errors_during_loading(client):
