@@ -1,7 +1,7 @@
 import random
 import sqlalchemy as sa
 from sqlalchemy.schema import MetaData
-from sqlalchemy.ext.declarative import as_declarative
+from sqlalchemy.orm import as_declarative
 
 from falcon_helpers.sqla.core import utcnow
 from falcon_helpers.sqla.utils import random_data_for_type

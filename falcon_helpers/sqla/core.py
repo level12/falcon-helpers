@@ -4,4 +4,4 @@ from sqlalchemy.types import DateTime
 
 class utcnow(expression.FunctionElement):
     type = DateTime()
-
+    inherit_cache = True

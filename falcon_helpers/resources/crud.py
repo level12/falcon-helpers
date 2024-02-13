@@ -205,7 +205,7 @@ class CrudBase:
             raise falcon.HTTPInternalServerError(title="Misconfigured route")
 
         try:
-            return self.session.query(self.db_cls).get(obj_id)
+            return self.session.get(self.db_cls, obj_id)
         except sa.exc.DataError as e:
             self.session.rollback()
             log.warning(f'Bad primary key given to  {self.__class__.__name__}')

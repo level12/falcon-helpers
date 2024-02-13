@@ -12,7 +12,7 @@ from falcon_helpers.middlewares.marshmallow import MarshmallowMiddleware
 from falcon_helpers.sqla.orm import BaseColumns, BaseFunctions, Testable
 from falcon_helpers.sqla.db import session
 
-from falcon_helpers.tests.fixtures import Base
+from falcon_helpers.tests.fixtures import Base, bind
 
 
 class ModelOther(Base, BaseColumns, Testable):
@@ -58,8 +58,8 @@ class ListSub(ListBase):
 
 @pytest.fixture
 def app():
-    Base.metadata.drop_all()
-    Base.metadata.create_all()
+    Base.metadata.drop_all(bind=bind)
+    Base.metadata.create_all(bind=bind)
 
     app = falcon.App(
         middleware=[
@@ -132,7 +132,7 @@ class TestCrudBase:
             })
 
         assert resp.status_code == 201
-        assert session.query(ModelTest).get(resp.json['id']).name == 'thing'
+        assert session.get(ModelTest, resp.json['id']).name == 'thing'
         assert resp.json['name'] == 'thing'
 
     def test_crud_base_delete(self, client):
@@ -143,7 +143,7 @@ class TestCrudBase:
         resp = client.simulate_delete(f'/crud/{m1.id}')
 
         assert resp.status_code == 204
-        assert session.query(ModelTest).get(m1.id) is None
+        assert session.get(ModelTest, m1.id) is None
 
     def test_crud_base_delete_with_relationship(self, client):
         m1 = ModelTest.testing_create()
@@ -157,8 +157,8 @@ class TestCrudBase:
         resp = client.simulate_delete(f'/crud/{m1.id}')
 
         assert resp.status_code == 400
-        assert session.query(ModelTest).get(m1.id) == m1
-        assert session.query(ModelOther).get(mo1.id) == mo1
+        assert session.get(ModelTest, m1.id) == m1
+        assert session.get(ModelOther, mo1.id) == mo1
 
         assert 'errors' in resp.json
         assert resp.json['errors'] == [
