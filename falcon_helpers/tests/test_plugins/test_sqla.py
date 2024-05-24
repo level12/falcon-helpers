@@ -19,9 +19,7 @@ def test_plugin_takes_dict():
 
 
 def test_plugin_takes_url():
-    url = sa.engine.url.URL(**{
-        'drivername': 'sqlite',
-    })
+    url = sa.engine.url.URL.create(drivername='sqlite')
     assert SQLAlchemyPlugin(url).url == sa.engine.url.make_url('sqlite://')
 
 
@@ -31,9 +29,7 @@ def test_plugin_raises_on_bad_url():
 
 
 def test_register_plugin():
-    url = sa.engine.url.URL(**{
-        'drivername': 'sqlite',
-    })
+    url = sa.engine.url.URL.create(drivername='sqlite')
     sess = sa.orm.session.Session()
     pl = SQLAlchemyPlugin(url=url, session=sess)
 
@@ -51,9 +47,7 @@ def test_register_plugin():
 
 
 def test_register_plugin_with_sessionmaker():
-    url = sa.engine.url.URL(**{
-        'drivername': 'sqlite',
-    })
+    url = sa.engine.url.URL.create(drivername='sqlite')
     sess = sa.orm.session.sessionmaker()
     pl = SQLAlchemyPlugin(url=url, session=sess)
 

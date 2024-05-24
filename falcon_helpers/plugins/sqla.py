@@ -65,7 +65,7 @@ class SQLAlchemyPlugin:
     @url.setter
     def url(self, url):
         if isinstance(url, typing.Dict):
-            self._url = sa.engine.url.URL(**url)
+            self._url = sa.engine.url.URL.create(**url)
         elif isinstance(url, str):
             self._url = sa.engine.url.make_url(url)
         elif isinstance(url, sa.engine.url.URL):
