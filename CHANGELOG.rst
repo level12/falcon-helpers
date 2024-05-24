@@ -1,3 +1,7 @@
+0.21.0 - 2024-05-24
+###################
+* [BREAK] Require sqlalchemy 2
+
 0.20.0 - 2024-02-12
 ###################
 * [BREAK] Require marshmallow 3
