@@ -19,7 +19,7 @@ def document_from_temp(temp):
 
 class TestS3FileStore:
     @mock.patch.dict(os.environ, {'AWS_DEFAULT_REGION': 'us-east-1'})
-    @moto.mock_s3
+    @moto.mock_aws
     def test_warning_message_writes_when_passing_mode(self, caplog):
         s3 = boto3.resource('s3')
         s3.create_bucket(Bucket='bucket')

@@ -156,9 +156,30 @@ class ListBase:
             request_order = [request_order]
 
         request_order = list(flatten([x.split(';') for x in request_order]))
-        request_order = [sa.desc(x[1:]) if x.startswith('-') else sa.asc(x) for x in request_order]
 
-        default_order = request_order or self.default_order or self.db_cls.__mapper__.primary_key
+        # Ensure we're passing a column or text() representation to sqlalchemy
+        order_clauses = []
+        for x in request_order:
+            if x.startswith('-'):
+                col_name = x[1:]
+                desc_order = True
+            else:
+                col_name = x
+                desc_order = False
+
+            try:
+                column = getattr(self.db_cls, col_name)
+                if desc_order:
+                    order_clauses.append(sa.desc(column))
+                else:
+                    order_clauses.append(sa.asc(column))
+            except AttributeError:
+                if desc_order:
+                    order_clauses.append(sa.desc(sa.text(col_name)))
+                else:
+                    order_clauses.append(sa.asc(sa.text(col_name)))
+
+        default_order = order_clauses or self.default_order or self.db_cls.__mapper__.primary_key
         return query.order_by(*default_order)
 
     def custom_hook(self, query, req, **kwargs):

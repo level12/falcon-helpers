@@ -238,3 +238,24 @@ class TestListBase:
         resp = client.simulate_get(f'/list/zero/other')
         assert resp.status_code == 200
         assert resp.json == []
+
+    def test_listbase_get_with_sort_by_parameter(self, client):
+        m1 = ModelTest.testing_create(name='zebra')
+        m2 = ModelTest.testing_create(name='alpha')
+        m3 = ModelTest.testing_create(name='beta')
+        session.add_all([m1, m2, m3])
+        session.commit()
+
+        resp = client.simulate_get('/list', query_string='sort_by=name')
+        assert resp.status_code == 200
+        assert len(resp.json) == 3
+        assert resp.json[0]['name'] == 'alpha'
+        assert resp.json[1]['name'] == 'beta'
+        assert resp.json[2]['name'] == 'zebra'
+
+        resp = client.simulate_get('/list', query_string='sort_by=-name')
+        assert resp.status_code == 200
+        assert len(resp.json) == 3
+        assert resp.json[0]['name'] == 'zebra'
+        assert resp.json[1]['name'] == 'beta'
+        assert resp.json[2]['name'] == 'alpha'

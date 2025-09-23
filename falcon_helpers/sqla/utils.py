@@ -28,7 +28,7 @@ def random_data_for_type(column, numeric_low=-100, numeric_high=100):
     elif isinstance(column.type, sa.types.Date):
         return datetime.date.today()
     elif isinstance(column.type, sa.types.DateTime):
-        return datetime.datetime.utcnow()
+        return datetime.datetime.now(datetime.UTC)
     elif isinstance(column.type, columns.Point):
         return (0, 0)
     elif isinstance(column.type, (sa.types.String, sa.types.Unicode)):
