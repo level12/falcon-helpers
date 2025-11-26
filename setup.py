@@ -18,7 +18,6 @@ setup(
     install_requires=[
         'cryptography',
         'falcon>=3',
-        'falcon_multipart',
         'jinja2',
         'marshmallow>=3',
         'marshmallow-sqlalchemy',
