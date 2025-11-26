@@ -17,7 +17,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'cryptography',
-        'falcon==3.*',
+        'falcon>=3',
         'falcon_multipart',
         'jinja2',
         'marshmallow>=3',
