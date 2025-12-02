@@ -1,3 +1,9 @@
+0.22.0 - 2025-12-02
+###################
+* [NEW] Support falcon 4
+* [BREAK] Remove deprecated falcon_multipart middleware
+
+
 0.21.0 - 2024-05-24
 ###################
 * [BREAK] Require sqlalchemy 2
