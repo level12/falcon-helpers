@@ -1,3 +1,10 @@
+Unreleased
+##########
+* [BUG] Prevent duplicate group-permission grants in new databases with a unique
+  constraint on ``auth_group_permissions``. Existing databases need a migration
+  to deduplicate rows and create the constraint.
+
+
 0.22.0 - 2025-12-02
 ###################
 * [NEW] Support falcon 4

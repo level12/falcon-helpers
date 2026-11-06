@@ -25,7 +25,9 @@ user_permissions = sa.Table('auth_user_permissions', metadata,
 
 group_permissions = sa.Table('auth_group_permissions', metadata,
     sa.Column('group_id', sa.Integer, sa.ForeignKey('auth_groups.id')),
-    sa.Column('permissions_id', sa.Integer, sa.ForeignKey('auth_permissions.id'))
+    sa.Column('permissions_id', sa.Integer, sa.ForeignKey('auth_permissions.id')),
+    sa.UniqueConstraint('group_id', 'permissions_id',
+                        name='uq_auth_group_permissions_group_id_permissions_id')
 )
 
 
