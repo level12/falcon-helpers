@@ -20,22 +20,26 @@ def test_generate_auth_token():
     assert result['other'] == 'true'
 
 
-def test_group_permission_pair_is_unique():
+@pytest.mark.parametrize('owner,association,owner_column', [
+    (auth.Group, auth.group_permissions, 'group_id'),
+    (auth.User, auth.user_permissions, 'user_id'),
+])
+def test_permission_pair_is_unique(owner, association, owner_column):
     engine = sa.create_engine('sqlite://')
     with engine.begin() as connection:
         auth.metadata.create_all(connection, tables=[
-            auth.Group.__table__,
+            owner.__table__,
             auth.Permission.__table__,
-            auth.group_permissions,
+            association,
         ])
-        connection.execute(sa.insert(auth.Group).values(id=1, ident='admins'))
+        connection.execute(sa.insert(owner).values(id=1, ident='admins'))
         connection.execute(sa.insert(auth.Permission).values(id=1, ident='view'))
-        grant = sa.insert(auth.group_permissions).values(group_id=1, permissions_id=1)
+        grant = sa.insert(association).values(**{owner_column: 1, 'permissions_id': 1})
         connection.execute(grant)
 
         with pytest.raises(sa.exc.IntegrityError):
             connection.execute(grant)
 
         assert connection.scalar(sa.select(sa.func.count()).select_from(
-            auth.group_permissions,
+            association,
         )) == 1

@@ -1,8 +1,9 @@
 Unreleased
 ##########
-* [BUG] Prevent duplicate group-permission grants in new databases with a unique
-  constraint on ``auth_group_permissions``. Existing databases need a migration
-  to deduplicate rows and create the constraint.
+* [BUG] Prevent duplicate group- and user-permission grants in new databases
+  with unique constraints on ``auth_group_permissions`` and
+  ``auth_user_permissions``. Existing databases need a migration to deduplicate
+  rows and create the constraints.
 
 
 0.22.0 - 2025-12-02
